@@ -38,52 +38,92 @@ class TestPipelineDependencies(unittest.TestCase):
         text = """00000000001001110100100000100000 ; I1: add R9,R1,R7
                   00000000000010010001000000100000 ; I2: add R2,R0,R9"""
         mips = Mips(text)
-        self.pipeline = mips.pipeline
 
         # state before pipeline.run()
         # [_, _, _, _, _]
-        self.pipeline.run()
+        mips.pipeline.run()
         
-        i1 = self.pipeline._pipeline[0].instruction
-        self.assertEqual(self.pipeline._pipeline[0].instruction, i1)
+        i1 = mips.pipeline._pipeline[0].instruction
+        self.assertEqual(mips.pipeline._pipeline[0].instruction, i1)
         
         # [i1, _, _, _, _]
-        self.pipeline.run()
+        mips.pipeline.run()
         
-        i2 = self.pipeline._pipeline[0].instruction
-        self.assertEqual(self.pipeline._pipeline[0].instruction, i2)
-        self.assertEqual(self.pipeline._pipeline[1].instruction, i1)
+        i2 = mips.pipeline._pipeline[0].instruction
+        self.assertEqual(mips.pipeline._pipeline[0].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i1)
         
         # [i2, i1, _, _, _]
-        self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[1].instruction, i2)
-        self.assertEqual(self.pipeline._pipeline[2].instruction, i1)
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[2].instruction, i1)
 
         # [i2, _, i1, _, _]
-        self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[1].instruction, i2)
-        self.assertEqual(self.pipeline._pipeline[3].instruction, i1)
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[3].instruction, i1)
 
         # [i2, _, _, i1, _]
-        self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[1].instruction, i2)
-        self.assertEqual(self.pipeline._pipeline[4].instruction, i1)
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[4].instruction, i1)
 
         # [i2, _, _, _, i1]
-        self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[1].instruction, i2)
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i2)
         
         # [i2, _, _, _, _]
-        self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[2].instruction, i2)
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[2].instruction, i2)
         
         # [_, i2, _, _, _]
-        self.pipeline.run()
+        mips.pipeline.run()
         
         # [_, _, i2, _, _]
-        self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[4].instruction, i2)
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[4].instruction, i2)
 
+    def test_jump_dependency(self):
+        text = """00000000001001110100100000100000 ; I1: add R9,R1,R7
+                  00001000000000000000000000000000 ; I2: jmp 0"""
+        mips = Mips(text)
 
+        # state before pipeline.run()
+        # [_, _, _, _, _]
+        mips.pipeline.run()
+        i1 = mips.pipeline._pipeline[0].instruction
+
+        # [i1, _, _, _, _]
+        mips.pipeline.run()
+        
+        i2 = mips.pipeline._pipeline[0].instruction
+        self.assertEqual(mips.pipeline._pipeline[0].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i1)
+        
+        # [i2, i1, _, _, _]
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[1].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[2].instruction, i1)
+
+        # [_, i2, i1, _, _]
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[2].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[3].instruction, i1)
+
+        # [_, _, i2, i1, _]
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[3].instruction, i2)
+        self.assertEqual(mips.pipeline._pipeline[4].instruction, i1)
+        
+        # [_, _, _, i2, i1]
+        mips.pipeline.run()
+        self.assertEqual(mips.pipeline._pipeline[4].instruction, i2)
+        
+        # [_, _, _, _, i2]
+        mips.pipeline.run()
+        self.assertEqual(mips.registers["pc"], 4)
+        self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i1.text)
+        
+    
 if __name__ == "__main__":
     unittest.main()
