@@ -28,6 +28,7 @@ class Mips(object):
         
         return instruction
 
+        
 
 if __name__ == "__main__":
     print "MIPS"

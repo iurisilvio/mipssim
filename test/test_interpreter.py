@@ -98,6 +98,7 @@ class TestCompile(unittest.TestCase):
         self.assertEqual(interpreter.bytecode_instructions[0], "10101100000000010000000000011000")
 
     def test_label(self):
+        """A label is just to mark a point, it is ignored in bytecode generation."""
         code = "label:"
         interpreter = Interpreter(code)
         interpreter.compile()

@@ -118,9 +118,15 @@ class AddInstruction(BaseInstruction):
             REG_DST=1, REG_WRITE=1, EXT_OP=None)
         
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        return True
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            registers.lock(self.rd)
+            return True
+            
+        except RegisterInUseException:
+            print "AddInstruction blocked"
+            return False
         
     def execute(self):
         BaseInstruction.execute(self)
@@ -128,6 +134,7 @@ class AddInstruction(BaseInstruction):
         return self.execution_time == 0
         
     def write_back(self, registers):
+        registers.unlock(self.rd)
         registers[self.rd] = self.rd_value
         return True
 
@@ -138,8 +145,13 @@ class AddiInstruction(BaseInstruction):
             REG_DST=1, REG_WRITE=1, EXT_OP=1, ALU_SRC=1)
                                            
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        return True
+        try:
+            self.rs_value = registers[self.rs]
+            registers.lock(self.rt)
+            return True
+        except RegisterInUseException:
+            print "AddiInstruction blocked"
+            return False
 
     def execute(self):
         BaseInstruction.execute(self)
@@ -147,6 +159,7 @@ class AddiInstruction(BaseInstruction):
         return self.execution_time == 0
         
     def write_back(self, registers):
+        registers.unlock(self.rt)
         registers[self.rt] = self.rt_value
         return True
         
@@ -237,8 +250,13 @@ class LwInstruction(BaseInstruction):
             REG_DST=None, ALU_SRC=1, MEM_TO_REG=None, MEM_WRITE=1, EXT_OP=1)
                                            
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        return True
+        try:
+            self.rs_value = registers[self.rs]
+            registers.lock(self.rt)
+            return True
+        except RegisterInUseException:
+            print "LwInstruction blocked"
+            return False
                                           
     def execute(self):
         BaseInstruction.execute(self)
@@ -250,6 +268,7 @@ class LwInstruction(BaseInstruction):
         return True
                 
     def write_back(self, registers):
+        registers.unlock(self.rt)
         registers[self.rt] = self.rt_value
         return True
         
@@ -260,16 +279,22 @@ class MulInstruction(BaseInstruction):
             REG_DST=1, REG_WRITE=1, EXT_OP=None)
                                   
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        return True
-           
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            registers.lock(self.rd)
+            return True
+        except RegisterInUseException:
+            print "MulInstruction blocked"
+            return False
+        
     def execute(self):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value * self.rt_value
         return self.execution_time == 0
         
     def write_back(self, registers):
+        registers.unlock(self.rd)
         registers[self.rd] = self.rd_value
         return True
         
@@ -286,16 +311,22 @@ class SubInstruction(BaseInstruction):
             REG_WRITE=1, EXT_OP=None)
         
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        return True
-                                  
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            registers.lock(self.rd)
+            return True
+        except RegisterInUseException:
+            print "SubInstruction blocked"
+            return False
+        
     def execute(self):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value - self.rt_value
         return self.execution_time == 0
 
     def write_back(self, registers):
+        registers.unlock(self.rd)
         registers[self.rd] = self.rd_value
         return True
         

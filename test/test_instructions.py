@@ -2,7 +2,7 @@ import unittest
 
 import instructions
 from instructions import Instruction
-from registers import Registers
+from registers import Registers, RegisterInUseException
 
 
 class TestInstructionR(unittest.TestCase):
@@ -123,7 +123,6 @@ class TestAddInstruction(BaseTestInstruction, unittest.TestCase):
         # don't change registers
         self.assertEqual(self.registers[1], 3)
         self.assertEqual(self.registers[7], 2)
-        self.assertEqual(self.registers[9], 4)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -134,6 +133,14 @@ class TestAddInstruction(BaseTestInstruction, unittest.TestCase):
         self.assertEqual(self.registers[7], 2)
         # register changed
         self.assertEqual(self.registers[9], 5)
+        
+    def test_register_lock(self):
+        BaseTestInstruction.instruction_decode(self)
+        self.assertRaises(RegisterInUseException, self.registers.__getitem__, 9)
+        
+    def test_register_unlock(self):
+        BaseTestInstruction.write_back(self)
+        self.registers[9]
         
     
 class TestAddiInstruction(BaseTestInstruction, unittest.TestCase):
@@ -151,8 +158,6 @@ class TestAddiInstruction(BaseTestInstruction, unittest.TestCase):
     def test_execute(self):
         self.assertTrue(BaseTestInstruction.execute(self))
         self.assertEqual(self.instruction.rt_value, 5)
-        # don't change registers
-        self.assertEqual(self.registers[6], 4)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -162,7 +167,15 @@ class TestAddiInstruction(BaseTestInstruction, unittest.TestCase):
         # register changed
         self.assertEqual(self.registers[6], 5)
         
+    def test_register_lock(self):
+        BaseTestInstruction.instruction_decode(self)
+        self.assertRaises(RegisterInUseException, self.registers.__getitem__, 6)
+        
+    def test_register_unlock(self):
+        BaseTestInstruction.write_back(self)
+        self.registers[6]
     
+
 class TestBeqInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
         self.text = "00010100001000110000000000001010 ; I20: beq R1,R2,10"
@@ -200,7 +213,7 @@ class TestBeqInstruction(BaseTestInstruction, unittest.TestCase):
         BaseTestInstruction.write_back(self)
         self.assertEqual(self.registers["pc"], 0)
         
-        
+    
 class TestBleInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
         self.text = "00011100110010100000000000010100 ; I11: ble R6,R10,20"
@@ -327,6 +340,14 @@ class TestLwInstruction(BaseTestInstruction, unittest.TestCase):
         BaseTestInstruction.write_back(self)
         self.assertEqual(self.registers[1], 6)
         
+    def test_register_lock(self):
+        BaseTestInstruction.instruction_decode(self)
+        self.assertRaises(RegisterInUseException, self.registers.__getitem__, 1)
+        
+    def test_register_unlock(self):
+        BaseTestInstruction.write_back(self)
+        self.registers[1]
+        
     
 class TestMulInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
@@ -349,7 +370,6 @@ class TestMulInstruction(BaseTestInstruction, unittest.TestCase):
         # don't change registers
         self.assertEqual(self.registers[1], 3)
         self.assertEqual(self.registers[7], 2)
-        self.assertEqual(self.registers[9], 4)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -368,7 +388,15 @@ class TestMulInstruction(BaseTestInstruction, unittest.TestCase):
         self.assertTrue(self.instruction.memory_access(self.memory))
         self.assertTrue(self.instruction.write_back(self.registers))
 
-    
+    def test_register_lock(self):
+        BaseTestInstruction.instruction_decode(self)
+        self.assertRaises(RegisterInUseException, self.registers.__getitem__, 9)
+        
+    def test_register_unlock(self):
+        BaseTestInstruction.write_back(self)
+        self.registers[9]
+        
+        
 class TestNopInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
         self.text = "00000000000000000000000000000000 ; I4: nop"
@@ -410,17 +438,24 @@ class TestSubInstruction(BaseTestInstruction, unittest.TestCase):
         # don't change registers
         self.assertEqual(self.registers[1], 3)
         self.assertEqual(self.registers[7], 2)
-        self.assertEqual(self.registers[9], 4)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
-                
+        
     def test_write_back(self):
         BaseTestInstruction.write_back(self)
         self.assertEqual(self.registers[1], 3)
         self.assertEqual(self.registers[7], 2)
         # register changed
         self.assertEqual(self.registers[9], 1)
+        
+    def test_register_lock(self):
+        BaseTestInstruction.instruction_decode(self)
+        self.assertRaises(RegisterInUseException, self.registers.__getitem__, 9)
+        
+    def test_register_unlock(self):
+        BaseTestInstruction.write_back(self)
+        self.registers[9]
         
     
 class TestSwInstruction(BaseTestInstruction, unittest.TestCase):
@@ -451,5 +486,3 @@ class TestSwInstruction(BaseTestInstruction, unittest.TestCase):
         BaseTestInstruction.write_back(self)
         
     
-if __name__ == "__main__":
-    unittest.main()
