@@ -121,9 +121,96 @@ class TestPipelineDependencies(unittest.TestCase):
         
         # [_, _, _, _, i2]
         mips.pipeline.run()
+        # after this last run: [i1, _, _, _, _]
+        
         self.assertEqual(mips.registers["pc"], 4)
         self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i1.text)
+
+        # [i1, _, _, _, _]
+        mips.pipeline.run()
+        # after this last run: [i2, i1, _, _, _]
+        self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i2.text)
+        self.assertEqual(mips.pipeline._pipeline[1].instruction.text, i1.text)
         
+    def test_beq_branch(self):
+        text = """00000000000000000000000000000000 ; I1: nop
+                  00010100001000100000000000000000 ; I2: beq R1,R2,0"""
+        mips = Mips(text)
+        mips.registers[1] = 5
+        mips.registers[2] = 5
+
+        # state before pipeline.run()
+        # [_, _, _, _, _]
+        mips.pipeline.run()
+        i1 = mips.pipeline._pipeline[0].instruction
+
+        # [i1, _, _, _, _]
+        mips.pipeline.run()
+        
+        i2 = mips.pipeline._pipeline[0].instruction
+        
+        # [i2, i1, _, _, _]
+        mips.pipeline.run()
+
+        # [_, i2, i1, _, _]
+        mips.pipeline.run()
+
+        # [_, _, i2, i1, _]
+        mips.pipeline.run()
+        
+        # [_, _, _, i2, i1]
+        mips.pipeline.run()
+        
+        # [_, _, _, _, i2]
+        mips.pipeline.run()
+
+        # after this last run: [i1, _, _, _, _]
+        self.assertEqual(mips.registers["pc"], 4)
+        self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i1.text)
+
+        # [i1, _, _, _, _]
+        mips.pipeline.run()
+
+        # after this last run: [i2, i1, _, _, _]
+        self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i2.text)
+        self.assertEqual(mips.pipeline._pipeline[1].instruction.text, i1.text)
+        
+    def test_beq_pass(self):
+        text = """00000000000000000000000000000000 ; I1: nop
+                  00010100001000100000000000000000 ; I2: beq R1,R2,0"""
+        mips = Mips(text)
+        mips.registers[1] = 1
+        mips.registers[2] = 2
+
+        # state before pipeline.run()
+        # [_, _, _, _, _]
+        mips.pipeline.run()
+        i1 = mips.pipeline._pipeline[0].instruction
+
+        # [i1, _, _, _, _]
+        mips.pipeline.run()
+        
+        i2 = mips.pipeline._pipeline[0].instruction
+        
+        # [i2, i1, _, _, _]
+        mips.pipeline.run()
+
+        # [_, i2, i1, _, _]
+        mips.pipeline.run()
+
+        # [_, _, i2, i1, _]
+        mips.pipeline.run()
+        
+        # [_, _, _, i2, i1]
+        mips.pipeline.run()
+        
+        # [_, _, _, _, i2]
+        mips.pipeline.run()
+
+        # after this last run: [_, _, _, _, _]
+        self.assertEqual(mips.registers["pc"], 8)
+        self.assertEqual(mips.pipeline._pipeline[0].instruction, None)
+
     
 if __name__ == "__main__":
     unittest.main()

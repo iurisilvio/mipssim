@@ -69,8 +69,8 @@ class Instruction(object):
             instruction.bytecode = bytecode
             instruction.opcode = bytecode[0:6]
             instruction.target_address = int(bytecode[6:32], 2)
-            return instruction
             instruction.text = text
+            return instruction
             
         
     def __new__(cls, line):
@@ -173,15 +173,19 @@ class BeqInstruction(BaseInstruction):
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        self.pc = registers["pc"]
-        return True
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            self.pc = registers["pc"]
+            return True
+        except RegisterInUseException:
+            return False
         
     def execute(self):
         BaseInstruction.execute(self)
         if self.rs_value == self.rt_value:
-            self.pc = self.pc + self.immediate + 4
+            #self.pc = self.pc + self.immediate + 4
+            self.pc = self.immediate
         return self.execution_time == 0
         
     def write_back(self, registers):
@@ -195,10 +199,13 @@ class BleInstruction(BaseInstruction):
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        self.pc = registers["pc"]
-        return True
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            self.pc = registers["pc"]
+            return True
+        except RegisterInUseException:
+            return False
         
     def execute(self):
         BaseInstruction.execute(self)
@@ -217,15 +224,19 @@ class BneInstruction(BaseInstruction):
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        self.pc = registers["pc"]
-        return True
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            self.pc = registers["pc"]
+            return True
+        except RegisterInUseException:
+            return False
         
     def execute(self):
         BaseInstruction.execute(self)
         if self.rs_value != self.rt_value:
-            self.pc = self.pc + self.immediate + 4
+            #self.pc = self.pc + self.immediate + 4
+            self.pc = self.immediate
         return self.execution_time == 0
                     
     def write_back(self, registers):
@@ -258,9 +269,8 @@ class LwInstruction(BaseInstruction):
             registers.lock(self.rt)
             return True
         except RegisterInUseException:
-            print "LwInstruction blocked"
             return False
-                                          
+                 
     def execute(self):
         BaseInstruction.execute(self)
         self.target_address = self.rs_value + self.immediate
@@ -340,10 +350,14 @@ class SwInstruction(BaseInstruction):
             ALU_SRC=1, MEM_TO_REG=1, REG_WRITE=1, EXT_OP=1)
                                            
     def instruction_decode(self, registers):
-        self.rs_value = registers[self.rs]
-        self.rt_value = registers[self.rt]
-        return True
-                                  
+        try:
+            self.rs_value = registers[self.rs]
+            self.rt_value = registers[self.rt]
+            registers.lock(self.rt)
+            return True
+        except RegisterInUseException:
+            return False
+
     def execute(self):
         BaseInstruction.execute(self)
         self.memory_address = self.rs_value + self.immediate

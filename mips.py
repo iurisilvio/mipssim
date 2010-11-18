@@ -19,10 +19,10 @@ class Mips(object):
     def fetch_instruction(self):
         program_counter = self.registers["pc"]
         instruction_number = int(program_counter / 4)
-        self.registers["pc"] += 4
         
         try:
             instruction = Instruction(self.instructions[instruction_number])
+            self.registers["pc"] += 4
         except IndexError:
             instruction = None
         
