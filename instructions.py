@@ -1,5 +1,8 @@
 import logging
 
+from registers import RegisterInUseException
+
+
 ALU_SRC = "ALU_SRC"
 REG_DST = "REG_DST"
 MEM_TO_REG = "MEM_TO_REG"
