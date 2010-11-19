@@ -194,7 +194,6 @@ class TestBeqInstruction(BaseTestInstruction, unittest.TestCase):
         
     def test_execute_with_jump(self):
         self.assertTrue(BaseTestInstruction.execute(self))
-        #self.assertEqual(self.instruction.pc, 14)
         self.assertEqual(self.instruction.pc, 10)
         
     def test_memory_access(self):
@@ -202,7 +201,6 @@ class TestBeqInstruction(BaseTestInstruction, unittest.TestCase):
                 
     def test_write_back_with_jump(self):
         BaseTestInstruction.write_back(self)
-        #self.assertEqual(self.registers["pc"], 14)
         self.assertEqual(self.registers["pc"], 10)
         
     def test_execute_without_jump(self):
@@ -272,7 +270,6 @@ class TestBneInstruction(BaseTestInstruction, unittest.TestCase):
         
     def test_execute_with_jump(self):
         self.assertTrue(BaseTestInstruction.execute(self))
-        #self.assertEqual(self.instruction.pc, 14)
         self.assertEqual(self.instruction.pc, 10)
         
     def test_memory_access(self):
@@ -280,7 +277,6 @@ class TestBneInstruction(BaseTestInstruction, unittest.TestCase):
                 
     def test_write_back_with_jump(self):
         BaseTestInstruction.write_back(self)
-        #self.assertEqual(self.registers["pc"], 14)
         self.assertEqual(self.registers["pc"], 10)
         
     def test_execute_without_jump(self):

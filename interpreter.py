@@ -86,7 +86,7 @@ class Interpreter(object):
 
         raise Exception(line)
         
-    def _compile_line(self, tokens):
+    def _compile_line(self, tokens, pc):
         instruction = tokens["instruction"]
         
         if instruction in _instructions:
@@ -97,16 +97,19 @@ class Interpreter(object):
             if instruction == JMP:
                 target_address = self._to_bin(self.labels[tokens.get("label")], 26)
                 bytecode = "%s%s" % (opcode, target_address)
-            if instruction in (ADDI, LW, SW):
+            if instruction in (ADDI, LW, SW, BEQ, BLE, BNE):
                 rs = self._register_to_bin(tokens.get("rs"))
                 rt = self._register_to_bin(tokens.get("rt"))
-                immediate = self._to_bin(tokens.get("immediate"), 16)
-                bytecode = "%s%s%s%s" % (opcode, rs, rt, immediate)
 
-            if instruction in (BEQ, BLE, BNE):
-                rs = self._register_to_bin(tokens.get("rs"))
-                rt = self._register_to_bin(tokens.get("rt"))
-                immediate = self._to_bin(self.labels[tokens.get("label")], 16)
+                if instruction in (BEQ, BNE):
+                    label_position = self.labels[tokens.get("label")]
+                    immediate = self._to_bin(label_position - pc - 4, 16)
+                elif instruction == BLE:
+                    label_position = self.labels[tokens.get("label")]
+                    immediate = self._to_bin(label_position, 16)
+                else:
+                    immediate = self._to_bin(tokens.get("immediate"), 16)
+
                 bytecode = "%s%s%s%s" % (opcode, rs, rt, immediate)
 
             if instruction in (ADD, MUL, SUB):
@@ -125,10 +128,17 @@ class Interpreter(object):
     def _to_bin(self, number, length=0):
         """
         Convert `number` to binary, appending zeros to left to return a string with length.
+        If `number` is negative, two complement is used.
         """
-        zeros = "0" * length
-        binary = bin(int(number))[2:]
+        if number >= 0:
+            zeros = "0" * length
+            binary = bin(int(number))[2:]
+        else:
+            zeros = "1" * length
+            # two complement
+            binary = bin(~int(number) + 1)[2:]
         return ("%s%s" % (zeros, binary))[-length:]
+
         
     def parse(self):
         result = []
@@ -150,7 +160,7 @@ class Interpreter(object):
                 
         for instruction in parsed_instructions:
             pc += 4
-            self.bytecode_instructions.append(self._compile_line(instruction))
+            self.bytecode_instructions.append(self._compile_line(instruction, pc))
             
     def __str__(self):
         result = ""

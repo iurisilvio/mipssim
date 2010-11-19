@@ -26,7 +26,7 @@ class TestCompile(unittest.TestCase):
         interpreter = Interpreter(code)
         interpreter.compile()
         self.assertEqual(len(interpreter.bytecode_instructions), 3)
-        self.assertEqual(interpreter.bytecode_instructions[2], "00010100001000100000000000000100")
+        self.assertEqual(interpreter.bytecode_instructions[2], "00010100001000101111111111111100")
         
     def test_ble(self):
         code = """nop
@@ -45,7 +45,7 @@ class TestCompile(unittest.TestCase):
         interpreter = Interpreter(code)
         interpreter.compile()
         self.assertEqual(len(interpreter.bytecode_instructions), 2)
-        self.assertEqual(interpreter.bytecode_instructions[1], "00010000001000100000000000000100")
+        self.assertEqual(interpreter.bytecode_instructions[1], "00010000001000101111111111111000")
         
     def test_jmp_back(self):
         code = """label:

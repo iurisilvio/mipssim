@@ -134,7 +134,7 @@ class TestPipelineDependencies(unittest.TestCase):
         
     def test_beq_branch(self):
         text = """00000000000000000000000000000000 ; I1: nop
-                  00010100001000100000000000000000 ; I2: beq R1,R2,0"""
+                  00010100001000101111111111111000 ; I2: beq R1,R2,-8"""
         mips = Mips(text)
         mips.registers[1] = 5
         mips.registers[2] = 5
@@ -157,14 +157,18 @@ class TestPipelineDependencies(unittest.TestCase):
 
         # [_, _, i2, i1, _]
         mips.pipeline.run()
-        
+
         # [_, _, _, i2, i1]
         mips.pipeline.run()
+
+        self.assertEqual(i2.rs_value, 5)
+        self.assertEqual(i2.rt_value, 5)
         
         # [_, _, _, _, i2]
         mips.pipeline.run()
 
         # after this last run: [i1, _, _, _, _]
+        self.assertEqual(mips.pipeline._pipeline[4].instruction, None)
         self.assertEqual(mips.registers["pc"], 4)
         self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i1.text)
 

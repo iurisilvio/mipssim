@@ -52,6 +52,10 @@ class Instruction(object):
             instruction.rs = int(bytecode[6:11], 2)
             instruction.rt = int(bytecode[11:16], 2)
             instruction.immediate = int(bytecode[16:32], 2)
+            
+            if bytecode[16] == '1': # immediate is a two complement number
+                instruction.immediate -= (1 << 16)
+                
             instruction.text = text
             return instruction
             
@@ -184,8 +188,7 @@ class BeqInstruction(BaseInstruction):
     def execute(self):
         BaseInstruction.execute(self)
         if self.rs_value == self.rt_value:
-            #self.pc = self.pc + self.immediate + 4
-            self.pc = self.immediate
+            self.pc = self.pc + self.immediate
         return self.execution_time == 0
         
     def write_back(self, registers):
@@ -235,8 +238,7 @@ class BneInstruction(BaseInstruction):
     def execute(self):
         BaseInstruction.execute(self)
         if self.rs_value != self.rt_value:
-            #self.pc = self.pc + self.immediate + 4
-            self.pc = self.immediate
+            self.pc = self.pc + self.immediate
         return self.execution_time == 0
                     
     def write_back(self, registers):
