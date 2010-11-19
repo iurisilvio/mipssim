@@ -1,0 +1,214 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <title>Simple MIPS Simulator</title>
+        
+        <link rel="stylesheet" href="style.css" type="text/css"></link>
+    </head>
+    <body>
+        <table id="instructions">
+            <tr id="id">
+                <th>Instruction Fetch</th>
+                <th>Instruction Decode</th>
+                <th>Execute</th>
+                <th>Memory Access</th>
+                <th>Write Back</th>
+            </tr>
+            <tr id="text">
+                <td>I1: addi R10,R0,100</td>
+                <td>I2: sw R0,24(R0)</td>
+                <td>I3: sw R0,28(R0)</td>
+                <td>I4: lw R6,28(R0)</td>
+                <td>I5: mul R7,R6,R6</td>
+            </tr>
+            <tr id="signals">
+                <td>
+                    alu_src: 1<br />
+                    reg_dst: 1<br />
+                    mem_to_reg: 0<br />
+                    reg_write: 1<br />
+                    mem_write: 0<br />
+                    branch: 0<br />
+                    jump: 0<br />
+                    ext_op: 1
+                </td>
+                <td>
+                    alu_src: 1<br />
+                    reg_dst: 1<br />
+                    mem_to_reg: 0<br />
+                    reg_write: 1<br />
+                    mem_write: 0<br />
+                    branch: 0<br />
+                    jump: 0<br />
+                    ext_op: 1
+                </td>
+                <td>
+                    alu_src: 1<br />
+                    reg_dst: 1<br />
+                    mem_to_reg: 0<br />
+                    reg_write: 1<br />
+                    mem_write: 0<br />
+                    branch: 0<br />
+                    jump: 0<br />
+                    ext_op: 1
+                </td>
+                <td>
+                    alu_src: 1<br />
+                    reg_dst: 1<br />
+                    mem_to_reg: 0<br />
+                    reg_write: 1<br />
+                    mem_write: 0<br />
+                    branch: 0<br />
+                    jump: 0<br />
+                    ext_op: 1
+                </td>
+                <td>
+                    alu_src: 1<br />
+                    reg_dst: 1<br />
+                    mem_to_reg: 0<br />
+                    reg_write: 1<br />
+                    mem_write: 0<br />
+                    branch: 0<br />
+                    jump: 0<br />
+                    ext_op: 1
+                </td>
+            </tr>
+        </table>
+        
+        <div id="controlbar">
+            <div id="play" class="button">|&gt;</div>
+            <div id="next" class="button">&gt;&gt;</div>
+            <div id="pause" class="button">||</div>
+            <div id="load" class="button">load</div>
+        </div>
+        
+        <table id="memory">
+            <tr>
+                <th colspan="2">Memória recente usada</th>
+            </tr>
+            <tr>
+                <td>Endereço</td>
+                <td>Valor</td>
+            </tr>
+            <tr>
+                <td>24</td>
+                <td>?</td>
+            </tr>
+            <tr>
+                <td>28</td>
+                <td>?</td>
+            </tr>
+            <tr>
+                <td>32</td>
+                <td>?</td>
+            </tr>
+            <tr>
+                <td>36</td>
+                <td>?</td>
+            </tr>
+        </table>
+        <table id="info">
+            <tr>
+                <td>Clock</td>
+                <td>?</td>
+            </tr>
+            <tr>
+                <td>PC</td>
+                <td>?</td>
+            </tr>
+            <tr>
+                <td>Instruções concluídas</td>
+                <td>?</td>
+            </tr>
+            <tr>
+                <td>Produtividade</td>
+                <td>?</td>
+            </tr>
+        </table>
+                <table id="registers">
+            <tr>
+                <th colspan="8">Registradores</th>
+            </tr>
+            <tr>
+                <td>R0</td>
+                <td>0</td>
+                <td>R8</td>
+                <td>0</td>
+                <td>R16</td>
+                <td>0</td>
+                <td>R24</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R1</td>
+                <td>0</td>
+                <td>R9</td>
+                <td>0</td>
+                <td>R17</td>
+                <td>0</td>
+                <td>R25</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R2</td>
+                <td>0</td>
+                <td>R10</td>
+                <td>0</td>
+                <td>R18</td>
+                <td>0</td>
+                <td>R26</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R3</td>
+                <td>0</td>
+                <td>R11</td>
+                <td>0</td>
+                <td>R19</td>
+                <td>0</td>
+                <td>R27</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R4</td>
+                <td>0</td>
+                <td>R12</td>
+                <td>0</td>
+                <td>R20</td>
+                <td>0</td>
+                <td>R28</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R5</td>
+                <td>0</td>
+                <td>R13</td>
+                <td>0</td>
+                <td>R21</td>
+                <td>0</td>
+                <td>R29</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R6</td>
+                <td>0</td>
+                <td>R14</td>
+                <td>0</td>
+                <td>R22</td>
+                <td>0</td>
+                <td>R30</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>R7</td>
+                <td>0</td>
+                <td>R15</td>
+                <td>0</td>
+                <td>R23</td>
+                <td>0</td>
+                <td>R31</td>
+                <td>0</td>
+            </tr>
+        </table>
+    </body>
+</html>

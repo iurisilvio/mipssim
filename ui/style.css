@@ -1,0 +1,56 @@
+#controlbar {
+    width: 180px;
+    height: 22px;
+    position: absolute;
+    top: 10px;
+    right: 30px;
+}
+
+#controlbar .button {
+    border: 1px solid #F00;
+    width: 40px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+#instructions {
+    border-collapse: collapse;
+    float: left;
+}
+
+#instructions tr td,
+#instructions tr th,
+#memory tr td,
+#memory tr th,
+#info tr td,
+#registers tr th,
+#registers tr td {
+    border: 1px solid #000;
+}
+
+#instructions #id th {
+    width: 130px;
+}
+
+#memory {
+    border-collapse: collapse;
+    position: absolute;
+    top: 50px;
+    right: 30px;
+}
+
+#info {
+    border-collapse: collapse;
+    position: absolute;
+    top: 200px;
+    right: 30px;
+}
+
+#registers {
+    border-collapse: collapse;
+    position: absolute;
+    top: 300px;
+    right: 30px;
+}
+
