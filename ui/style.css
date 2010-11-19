@@ -1,17 +1,6 @@
-#controlbar {
-    width: 180px;
-    height: 22px;
-    position: absolute;
-    top: 10px;
-    right: 30px;
-}
-
-#controlbar .button {
-    border: 1px solid #F00;
-    width: 40px;
-    height: 20px;
-    display: inline-block;
-    text-align: center;
+body, table {
+    font-family: verdana;
+    font-size: 11px;
 }
 
 #instructions {
@@ -36,21 +25,63 @@
 #memory {
     border-collapse: collapse;
     position: absolute;
-    top: 50px;
-    right: 30px;
+    top: 160px;
 }
 
 #info {
     border-collapse: collapse;
     position: absolute;
-    top: 200px;
-    right: 30px;
+    top: 265px;
 }
 
 #registers {
     border-collapse: collapse;
     position: absolute;
-    top: 300px;
-    right: 30px;
+    top: 340px;
 }
 
+#image {
+    position: absolute;
+    border: 1px solid #DDD;
+    top: 160px;
+    left: 200px;
+    width: 500px;
+}
+
+#controls {
+    border: 1px solid #000;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 500px;
+    height: 90%;
+}
+
+#controlbar {
+    width: 180px;
+    top: 400px;
+    left: 200px;
+    height: 70px;
+    position: relative;
+    display: block;
+}
+
+#controlbar .button {
+    border: 1px solid #F00;
+    width: 40px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+#code, #bytecode {
+    width: 90%;
+    height: 200px;
+    position: relative;
+    display: block;
+}
+
+#file {
+    display: block;
+    position: relative;
+}

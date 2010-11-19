@@ -74,14 +74,6 @@
                 </td>
             </tr>
         </table>
-        
-        <div id="controlbar">
-            <div id="play" class="button">|&gt;</div>
-            <div id="next" class="button">&gt;&gt;</div>
-            <div id="pause" class="button">||</div>
-            <div id="load" class="button">load</div>
-        </div>
-        
         <table id="memory">
             <tr>
                 <th colspan="2">Memória recente usada</th>
@@ -130,85 +122,69 @@
                 <th colspan="8">Registradores</th>
             </tr>
             <tr>
-                <td>R0</td>
-                <td>0</td>
-                <td>R8</td>
-                <td>0</td>
-                <td>R16</td>
-                <td>0</td>
-                <td>R24</td>
-                <td>0</td>
+                <td>R00</td><td>0</td>
+                <td>R08</td><td>0</td>
+                <td>R16</td><td>0</td>
+                <td>R24</td><td>0</td>
             </tr>
             <tr>
-                <td>R1</td>
-                <td>0</td>
-                <td>R9</td>
-                <td>0</td>
-                <td>R17</td>
-                <td>0</td>
-                <td>R25</td>
-                <td>0</td>
+                <td>R01</td><td>0</td>
+                <td>R09</td><td>0</td>
+                <td>R17</td><td>0</td>
+                <td>R25</td><td>0</td>
             </tr>
             <tr>
-                <td>R2</td>
-                <td>0</td>
-                <td>R10</td>
-                <td>0</td>
-                <td>R18</td>
-                <td>0</td>
-                <td>R26</td>
-                <td>0</td>
+                <td>R02</td><td>0</td>
+                <td>R10</td><td>0</td>
+                <td>R18</td><td>0</td>
+                <td>R26</td><td>0</td>
             </tr>
             <tr>
-                <td>R3</td>
-                <td>0</td>
-                <td>R11</td>
-                <td>0</td>
-                <td>R19</td>
-                <td>0</td>
-                <td>R27</td>
-                <td>0</td>
+                <td>R03</td><td>0</td>
+                <td>R11</td><td>0</td>
+                <td>R19</td><td>0</td>
+                <td>R27</td><td>0</td>
             </tr>
             <tr>
-                <td>R4</td>
-                <td>0</td>
-                <td>R12</td>
-                <td>0</td>
-                <td>R20</td>
-                <td>0</td>
-                <td>R28</td>
-                <td>0</td>
+                <td>R04</td><td>0</td>
+                <td>R12</td><td>0</td>
+                <td>R20</td><td>0</td>
+                <td>R28</td><td>0</td>
             </tr>
             <tr>
-                <td>R5</td>
-                <td>0</td>
-                <td>R13</td>
-                <td>0</td>
-                <td>R21</td>
-                <td>0</td>
-                <td>R29</td>
-                <td>0</td>
+                <td>R05</td><td>0</td>
+                <td>R13</td><td>0</td>
+                <td>R21</td><td>0</td>
+                <td>R29</td><td>0</td>
             </tr>
             <tr>
-                <td>R6</td>
-                <td>0</td>
-                <td>R14</td>
-                <td>0</td>
-                <td>R22</td>
-                <td>0</td>
-                <td>R30</td>
-                <td>0</td>
+                <td>R06</td><td>0</td>
+                <td>R14</td><td>0</td>
+                <td>R22</td><td>0</td>
+                <td>R30</td><td>0</td>
             </tr>
             <tr>
-                <td>R7</td>
-                <td>0</td>
-                <td>R15</td>
-                <td>0</td>
-                <td>R23</td>
-                <td>0</td>
-                <td>R31</td>
-                <td>0</td>
+                <td>R07</td><td>0</td>
+                <td>R15</td><td>0</td>
+                <td>R23</td><td>0</td>
+                <td>R31</td><td>0</td>
             </tr>
         </table>
+
+        <img id="image" src="img/mips.png" alt="" title="MIPS" />
+
+        <div id="controlbar">
+            <div id="prev" class="button">&lt;&lt;</div>
+            <div id="play" class="button">|&gt;</div>
+            <div id="next" class="button">&gt;&gt;</div>
+            <div id="pause" class="button">||</div>
+        </div>
+
+
+        <div id="controls">
+            <textarea id="code"></textarea>
+            <button id="compile">Compilar</button>
+            <textarea id="bytecode"></textarea>
+        </div>
     </body>
 </html>
