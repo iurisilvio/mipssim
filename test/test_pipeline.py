@@ -2,6 +2,7 @@ import unittest
 
 from mips import Mips
 from pipeline import Pipeline
+import instructions
 
 class TestPipeline(unittest.TestCase):
     def setUp(self):
@@ -10,6 +11,10 @@ class TestPipeline(unittest.TestCase):
                   00100000000010100000000001100100 ; I3: addi R10,R0,100"""
         mips = Mips(text)
         self.pipeline = mips.pipeline
+
+    def test_pipeline_start_with_nop(self):
+        for p in self.pipeline._pipeline:
+            self.assertTrue(isinstance(p.instruction, instructions.NopInstruction))
         
     def test_first_pipeline_run(self):
         self.pipeline.run()
@@ -161,14 +166,11 @@ class TestPipelineDependencies(unittest.TestCase):
         # [_, _, _, i2, i1]
         mips.pipeline.run()
 
-        self.assertEqual(i2.rs_value, 5)
-        self.assertEqual(i2.rt_value, 5)
-        
         # [_, _, _, _, i2]
         mips.pipeline.run()
-
         # after this last run: [i1, _, _, _, _]
-        self.assertEqual(mips.pipeline._pipeline[4].instruction, None)
+        
+        self.assertTrue(isinstance(mips.pipeline._pipeline[4].instruction, instructions.NopInstruction))
         self.assertEqual(mips.registers["pc"], 4)
         self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i1.text)
 
@@ -181,7 +183,7 @@ class TestPipelineDependencies(unittest.TestCase):
         
     def test_beq_pass(self):
         text = """00000000000000000000000000000000 ; I1: nop
-                  00010100001000100000000000000000 ; I2: beq R1,R2,0"""
+                  00010100001000101111111111111000 ; I2: beq R1,R2,-8"""
         mips = Mips(text)
         mips.registers[1] = 1
         mips.registers[2] = 2
@@ -213,7 +215,7 @@ class TestPipelineDependencies(unittest.TestCase):
 
         # after this last run: [_, _, _, _, _]
         self.assertEqual(mips.registers["pc"], 8)
-        self.assertEqual(mips.pipeline._pipeline[0].instruction, None)
+        self.assertTrue(isinstance(mips.pipeline._pipeline[0].instruction, instructions.NopInstruction))
 
     
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 
+from instructions import NopInstruction
+
 class MipsPhase(object):
     def __init__(self, pipeline):
-        self._instruction = None
+        self._instruction = NopInstruction()
         self.done = False
         self.pipeline = pipeline
         self.registers = self.pipeline._mips.registers

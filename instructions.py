@@ -132,7 +132,7 @@ class AddInstruction(BaseInstruction):
             return True
             
         except RegisterInUseException:
-            print "AddInstruction blocked"
+            #print "AddInstruction blocked"
             return False
         
     def execute(self):
@@ -157,7 +157,7 @@ class AddiInstruction(BaseInstruction):
             registers.lock(self.rt)
             return True
         except RegisterInUseException:
-            print "AddiInstruction blocked"
+            #print "AddiInstruction blocked"
             return False
 
     def execute(self):
@@ -300,7 +300,6 @@ class MulInstruction(BaseInstruction):
             registers.lock(self.rd)
             return True
         except RegisterInUseException:
-            print "MulInstruction blocked"
             return False
         
     def execute(self):
@@ -332,7 +331,6 @@ class SubInstruction(BaseInstruction):
             registers.lock(self.rd)
             return True
         except RegisterInUseException:
-            print "SubInstruction blocked"
             return False
         
     def execute(self):
@@ -355,7 +353,6 @@ class SwInstruction(BaseInstruction):
         try:
             self.rs_value = registers[self.rs]
             self.rt_value = registers[self.rt]
-            registers.lock(self.rt)
             return True
         except RegisterInUseException:
             return False
