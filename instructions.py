@@ -1,4 +1,5 @@
 import logging
+from copy import copy
 
 from registers import RegisterInUseException
 
@@ -117,6 +118,11 @@ class BaseInstruction(object):
                 
     def write_back(self, registers):
         return True
+        
+    def current_state(self):
+        state = {"text":self.text,
+                 "flags":copy(self.flags)}
+        return state
         
 
 class AddInstruction(BaseInstruction):
@@ -317,6 +323,7 @@ class NopInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
             REG_DST=1, REG_WRITE=1, EXT_OP=None)
+        self.text = "nop"
                                   
 
 class SubInstruction(BaseInstruction):

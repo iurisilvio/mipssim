@@ -1,3 +1,4 @@
+from copy import copy
 
 class RegisterInUseException(BaseException):
     def __init__(self, value):
@@ -43,3 +44,8 @@ class Registers(object):
             self._locks.remove(key)
         except KeyError:
             logging.info("Trying to unlock '%s' but it is not locked.", key)
+            
+    def current_state(self):
+        return {"r":copy(self._array),
+                "keys":copy(self._dict),
+                "locks":copy(self._locks)}

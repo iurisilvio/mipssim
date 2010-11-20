@@ -2,7 +2,7 @@ import unittest
 
 from mips import Mips
 from pipeline import Pipeline
-import instructions
+from instructions import NopInstruction
 
 class TestPipeline(unittest.TestCase):
     def setUp(self):
@@ -14,7 +14,7 @@ class TestPipeline(unittest.TestCase):
 
     def test_pipeline_start_with_nop(self):
         for p in self.pipeline._pipeline:
-            self.assertTrue(isinstance(p.instruction, instructions.NopInstruction))
+            self.assertTrue(isinstance(p.instruction, NopInstruction))
         
     def test_first_pipeline_run(self):
         self.pipeline.run()
@@ -32,9 +32,9 @@ class TestPipeline(unittest.TestCase):
         self.pipeline.run()
         self.pipeline.run()
         self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[3].instruction, None)
+        self.assertTrue(isinstance(self.pipeline._pipeline[3].instruction, NopInstruction))
         self.pipeline.run()
-        self.assertEqual(self.pipeline._pipeline[4].instruction, None)
+        self.assertTrue(isinstance(self.pipeline._pipeline[4].instruction, NopInstruction))
         self.pipeline.run()
 
 
@@ -170,7 +170,7 @@ class TestPipelineDependencies(unittest.TestCase):
         mips.pipeline.run()
         # after this last run: [i1, _, _, _, _]
         
-        self.assertTrue(isinstance(mips.pipeline._pipeline[4].instruction, instructions.NopInstruction))
+        self.assertTrue(isinstance(mips.pipeline._pipeline[4].instruction, NopInstruction))
         self.assertEqual(mips.registers["pc"], 4)
         self.assertEqual(mips.pipeline._pipeline[0].instruction.text, i1.text)
 
@@ -215,7 +215,7 @@ class TestPipelineDependencies(unittest.TestCase):
 
         # after this last run: [_, _, _, _, _]
         self.assertEqual(mips.registers["pc"], 8)
-        self.assertTrue(isinstance(mips.pipeline._pipeline[0].instruction, instructions.NopInstruction))
+        self.assertTrue(isinstance(mips.pipeline._pipeline[0].instruction, NopInstruction))
 
     
 if __name__ == "__main__":

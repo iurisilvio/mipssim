@@ -25,7 +25,7 @@ class Mips(object):
             instruction = Instruction(self.instructions[instruction_number])
             self.registers["pc"] += 4
         except IndexError:
-            instruction = NopInstruction()
+            instruction = None
         
         return instruction
 
@@ -33,13 +33,24 @@ class Mips(object):
         assertion = lambda pipeline: all(isinstance(p.instruction, NopInstruction) for p in pipeline._pipeline)
 
         while True:
+            self.history.append(self.current_state())
             self.pipeline.run()
             self.clocks += 1
             
             if assertion(self.pipeline):
+                self.history.append(self.current_state())
                 break
+                
+        #file("out.txt", 'w').write("\n".join([str(state) for state in self.history]))
         
-        
+    def current_state(self):
+        state = {"pipeline":self.pipeline.current_state(),
+                 "registers":self.registers.current_state()["r"],
+                 "clock":self.clocks,
+                 "pc":self.registers["pc"],
+                 "instructions_completed":self.pipeline.instructions_completed}
+        return state
+
 
 if __name__ == "__main__":
     print "MIPS"
