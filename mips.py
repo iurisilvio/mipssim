@@ -1,3 +1,4 @@
+from __future__ import division
 from instructions import Instruction, NopInstruction
 from pipeline import Pipeline
 from registers import Registers
@@ -18,8 +19,7 @@ class Mips(object):
         self.clocks = 0
         
     def fetch_instruction(self):
-        program_counter = self.registers["pc"]
-        instruction_number = int(program_counter / 4)
+        instruction_number = int(self.registers["pc"] / 4)
         
         try:
             instruction = Instruction(self.instructions[instruction_number])
@@ -30,25 +30,27 @@ class Mips(object):
         return instruction
 
     def run(self):
-        assertion = lambda pipeline: all(isinstance(p.instruction, NopInstruction) for p in pipeline._pipeline)
-
         while True:
             self.history.append(self.current_state())
             self.pipeline.run()
             self.clocks += 1
             
-            if assertion(self.pipeline):
+            if all(isinstance(p.instruction, NopInstruction) for p in self.pipeline._pipeline):
                 self.history.append(self.current_state())
                 break
                 
         #file("out.txt", 'w').write("\n".join([str(state) for state in self.history]))
         
     def current_state(self):
+        instructions_completed = self.pipeline.instructions_completed
+        throughput = instructions_completed / self.clocks if self.clocks > 0 else 0
+    
         state = {"pipeline":self.pipeline.current_state(),
                  "registers":self.registers.current_state()["r"],
                  "clock":self.clocks,
                  "pc":self.registers["pc"],
-                 "instructions_completed":self.pipeline.instructions_completed}
+                 "instructions_completed":instructions_completed,
+                 "throughput":throughput}
         return state
 
 

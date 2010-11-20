@@ -2,8 +2,10 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <title>Simple MIPS Simulator</title>
-        
-        <link rel="stylesheet" href="style.css" type="text/css"></link>
+
+        <script src="/static/js/jquery.js" type="text/javascript"></script>
+        <script src="/static/js/mips.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="/static/css/style.css" type="text/css"></link>
     </head>
     <body>
         <table id="instructions">
@@ -15,11 +17,11 @@
                 <th>Write Back</th>
             </tr>
             <tr id="text">
-                <td>I1: addi R10,R0,100</td>
-                <td>I2: sw R0,24(R0)</td>
-                <td>I3: sw R0,28(R0)</td>
-                <td>I4: lw R6,28(R0)</td>
-                <td>I5: mul R7,R6,R6</td>
+                <td id="if">I1: addi R10,R0,100</td>
+                <td id="_id">I2: sw R0,24(R0)</td>
+                <td id="ex">I3: sw R0,28(R0)</td>
+                <td id="mem">I4: lw R6,28(R0)</td>
+                <td id="wb">I5: mul R7,R6,R6</td>
             </tr>
             <tr id="signals">
                 <td>
@@ -102,19 +104,19 @@
         <table id="info">
             <tr>
                 <td>Clock</td>
-                <td>?</td>
+                <td id="clock">?</td>
             </tr>
             <tr>
                 <td>PC</td>
-                <td>?</td>
+                <td id="pc">?</td>
             </tr>
             <tr>
                 <td>Instruções concluídas</td>
-                <td>?</td>
+                <td id="instructions_completed">?</td>
             </tr>
             <tr>
                 <td>Produtividade</td>
-                <td>?</td>
+                <td id="throughput">?</td>
             </tr>
         </table>
                 <table id="registers">
@@ -122,69 +124,78 @@
                 <th colspan="8">Registradores</th>
             </tr>
             <tr>
-                <td>R00</td><td>0</td>
-                <td>R08</td><td>0</td>
-                <td>R16</td><td>0</td>
-                <td>R24</td><td>0</td>
+                <td>R00</td><td id="r0">0</td>
+                <td>R08</td><td id="r8">0</td>
+                <td>R16</td><td id="r16">0</td>
+                <td>R24</td><td id="r24">0</td>
             </tr>
             <tr>
-                <td>R01</td><td>0</td>
-                <td>R09</td><td>0</td>
-                <td>R17</td><td>0</td>
-                <td>R25</td><td>0</td>
+                <td>R01</td><td id="r1">0</td>
+                <td>R09</td><td id="r9">0</td>
+                <td>R17</td><td id="r17">0</td>
+                <td>R25</td><td id="r25">0</td>
             </tr>
             <tr>
-                <td>R02</td><td>0</td>
-                <td>R10</td><td>0</td>
-                <td>R18</td><td>0</td>
-                <td>R26</td><td>0</td>
+                <td>R02</td><td id="r2">0</td>
+                <td>R10</td><td id="r10">0</td>
+                <td>R18</td><td id="r18">0</td>
+                <td>R26</td><td id="r26">0</td>
             </tr>
             <tr>
-                <td>R03</td><td>0</td>
-                <td>R11</td><td>0</td>
-                <td>R19</td><td>0</td>
-                <td>R27</td><td>0</td>
+                <td>R03</td><td id="r3">0</td>
+                <td>R11</td><td id="r11">0</td>
+                <td>R19</td><td id="r19">0</td>
+                <td>R27</td><td id="r27">0</td>
             </tr>
             <tr>
-                <td>R04</td><td>0</td>
-                <td>R12</td><td>0</td>
-                <td>R20</td><td>0</td>
-                <td>R28</td><td>0</td>
+                <td>R04</td><td id="r4">0</td>
+                <td>R12</td><td id="r12">0</td>
+                <td>R20</td><td id="r20">0</td>
+                <td>R28</td><td id="r28">0</td>
             </tr>
             <tr>
-                <td>R05</td><td>0</td>
-                <td>R13</td><td>0</td>
-                <td>R21</td><td>0</td>
-                <td>R29</td><td>0</td>
+                <td>R05</td><td id="r5">0</td>
+                <td>R13</td><td id="r13">0</td>
+                <td>R21</td><td id="r21">0</td>
+                <td>R29</td><td id="r29">0</td>
             </tr>
             <tr>
-                <td>R06</td><td>0</td>
-                <td>R14</td><td>0</td>
-                <td>R22</td><td>0</td>
-                <td>R30</td><td>0</td>
+                <td>R06</td><td id="r6">0</td>
+                <td>R14</td><td id="r14">0</td>
+                <td>R22</td><td id="r22">0</td>
+                <td>R30</td><td id="r30">0</td>
             </tr>
             <tr>
-                <td>R07</td><td>0</td>
-                <td>R15</td><td>0</td>
-                <td>R23</td><td>0</td>
-                <td>R31</td><td>0</td>
+                <td>R07</td><td id="r7">0</td>
+                <td>R15</td><td id="r15">0</td>
+                <td>R23</td><td id="r23">0</td>
+                <td>R31</td><td id="r31">0</td>
             </tr>
         </table>
 
-        <img id="image" src="img/mips.png" alt="" title="MIPS" />
+        <img id="image" src="/static/img/mips.png" alt="" title="MIPS" />
 
         <div id="controlbar">
-            <div id="prev" class="button">&lt;&lt;</div>
-            <div id="play" class="button">|&gt;</div>
-            <div id="next" class="button">&gt;&gt;</div>
-            <div id="pause" class="button">||</div>
+            <button id="prev" class="button" onclick="mips.prev();">&lt;&lt;</button>
+            <button id="play" class="button">|&gt;</button>
+            <button id="next" class="button" onclick="mips.next();">&gt;&gt;</button>
         </div>
 
 
         <div id="controls">
-            <textarea id="code"></textarea>
-            <button id="compile">Compilar</button>
-            <textarea id="bytecode"></textarea>
+            <textarea id="bytecode">
+00100000000010100000000001100100 ; I1: addi R10,R0,100
+10101100000000000000000000011000 ; I2: sw R0,24(R0)
+10101100000000000000000000011100 ; I3: sw R0,28(R0)
+10001100000001100000000000011100 ; I4: lw R6,28(R0)
+00000000110001100011100000011000 ; I5: mul R7,R6,R6
+10001100000000010000000000011000 ; I6: lw R1,24(R0)
+00000000001001110100100000100000 ; I7: add R9,R1,R7
+10101100000010010000000000011000 ; I8: sw R9,24(R0)
+00100000110001100000000000000001 ; I9: addi R6,R6,1
+10101100000001100000000000011100 ; I10: sw R6,28(R0)
+00011100110010100000000000001100 ; I11: ble R6,R10,12</textarea>
+            <button id="execute" onclick="mips.execute(bytecode.value);">Executar</button>
         </div>
     </body>
 </html>

@@ -45,6 +45,8 @@ class MemoryAccess(MipsPhase):
 class WriteBack(MipsPhase):
     def execute(self):
         self.done = self.instruction.write_back(self.registers)
+        if self.done and not isinstance(self.instruction, NopInstruction):
+            self.pipeline.instructions_completed += 1
         
     
 class Pipeline(object):
@@ -72,16 +74,14 @@ class Pipeline(object):
                         self._pipeline[i+1].instruction = phase.instruction
                         self._pipeline[i].instruction = None
                 else:
-                    self.instructions_completed += 1
                     self._pipeline[i].instruction = None
                     
-        if self._pipeline[0].instruction is None:
-            self._pipeline[0].instruction = self.fetch_instruction()
-            
+            if self._pipeline[0].instruction is None:
+                self._pipeline[0].instruction = self.fetch_instruction()
+                    
         for p in self._pipeline:
-            if p.instruction == None:
+            if p.instruction is None:
                 p.instruction = NopInstruction()
-            
             
     def fetch_instruction(self):
         return self._mips.fetch_instruction()
