@@ -1,0 +1,9 @@
+Para utilizar o simulador MIPS, é necessário o Python instalado.
+
+Basta rodar o arquivo server.py e acessar a url http://localhost:8080/mips :
+
+    python server.py
+    
+Para compilar um código assembly da forma especificada, pode-se utilizar o interpreter.py:
+
+    python interpreter.py arquivo.txt
