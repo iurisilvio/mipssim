@@ -17,63 +17,18 @@
                 <th>Write Back</th>
             </tr>
             <tr id="text">
-                <td id="if">I1: addi R10,R0,100</td>
-                <td id="_id">I2: sw R0,24(R0)</td>
-                <td id="ex">I3: sw R0,28(R0)</td>
-                <td id="mem">I4: lw R6,28(R0)</td>
-                <td id="wb">I5: mul R7,R6,R6</td>
+                <td id="if">&nbsp;</td>
+                <td id="id_">&nbsp;</td>
+                <td id="ex">&nbsp;</td>
+                <td id="mem">&nbsp;</td>
+                <td id="wb">&nbsp;</td>
             </tr>
             <tr id="signals">
-                <td>
-                    alu_src: 1<br />
-                    reg_dst: 1<br />
-                    mem_to_reg: 0<br />
-                    reg_write: 1<br />
-                    mem_write: 0<br />
-                    branch: 0<br />
-                    jump: 0<br />
-                    ext_op: 1
-                </td>
-                <td>
-                    alu_src: 1<br />
-                    reg_dst: 1<br />
-                    mem_to_reg: 0<br />
-                    reg_write: 1<br />
-                    mem_write: 0<br />
-                    branch: 0<br />
-                    jump: 0<br />
-                    ext_op: 1
-                </td>
-                <td>
-                    alu_src: 1<br />
-                    reg_dst: 1<br />
-                    mem_to_reg: 0<br />
-                    reg_write: 1<br />
-                    mem_write: 0<br />
-                    branch: 0<br />
-                    jump: 0<br />
-                    ext_op: 1
-                </td>
-                <td>
-                    alu_src: 1<br />
-                    reg_dst: 1<br />
-                    mem_to_reg: 0<br />
-                    reg_write: 1<br />
-                    mem_write: 0<br />
-                    branch: 0<br />
-                    jump: 0<br />
-                    ext_op: 1
-                </td>
-                <td>
-                    alu_src: 1<br />
-                    reg_dst: 1<br />
-                    mem_to_reg: 0<br />
-                    reg_write: 1<br />
-                    mem_write: 0<br />
-                    branch: 0<br />
-                    jump: 0<br />
-                    ext_op: 1
-                </td>
+                <td id="if_flags">&nbsp;</td>
+                <td id="id_flags">&nbsp;</td>
+                <td id="ex_flags">&nbsp;</td>
+                <td id="mem_flags">&nbsp;</td>
+                <td id="wb_flags">&nbsp;</td>
             </tr>
         </table>
         <table id="memory">
@@ -177,7 +132,7 @@
 
         <div id="controlbar">
             <button id="prev" class="button" onclick="mips.prev();">&lt;&lt;</button>
-            <button id="play" class="button">|&gt;</button>
+            <button id="play" class="button" onclick="mips.play();">|&gt;</button>
             <button id="next" class="button" onclick="mips.next();">&gt;&gt;</button>
         </div>
 

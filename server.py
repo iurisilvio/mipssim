@@ -27,4 +27,4 @@ def static_server(path):
     
 if __name__ == "__main__":
     bottle.debug(True)
-    bottle.run(reloader=True)
+    bottle.run(reloader=True, host="0.0.0.0")

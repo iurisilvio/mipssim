@@ -79,7 +79,12 @@ class Instruction(object):
             
         
     def __new__(cls, line):
-        bytecode, text = line.split(";")
+        try:
+            bytecode, text = line.split(";")
+        except ValueError:
+            bytecode = line
+            text = ""
+            
         bytecode = bytecode.strip()
         text = text.strip()
         
@@ -108,14 +113,14 @@ class BaseInstruction(object):
         
     def instruction_decode(self, registers):
         return True
-                
+        
     def execute(self):
         self.execution_time -= 1
         return self.execution_time == 0
         
     def memory_access(self, memory):
         return True
-                
+        
     def write_back(self, registers):
         return True
         
@@ -136,9 +141,7 @@ class AddInstruction(BaseInstruction):
             self.rt_value = registers[self.rt]
             registers.lock(self.rd)
             return True
-            
         except RegisterInUseException:
-            #print "AddInstruction blocked"
             return False
         
     def execute(self):
@@ -163,7 +166,6 @@ class AddiInstruction(BaseInstruction):
             registers.lock(self.rt)
             return True
         except RegisterInUseException:
-            #print "AddiInstruction blocked"
             return False
 
     def execute(self):

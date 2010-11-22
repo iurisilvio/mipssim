@@ -5,6 +5,26 @@ from instructions import Instruction
 from registers import Registers, RegisterInUseException
 
 
+class TestBasicInstances(unittest.TestCase):
+    def test_line(self):
+        text = "00000000001001110100100000100000 ; I7: add R9,R1,R7"
+        instruction = Instruction(text)
+        self.assertEqual(instruction.bytecode, "00000000001001110100100000100000")
+        self.assertEqual(instruction.text, "I7: add R9,R1,R7")
+        
+    def test_line_with_empty_text(self):
+        text = "00000000001001110100100000100000;"
+        instruction = Instruction(text)
+        self.assertEqual(instruction.bytecode, "00000000001001110100100000100000")
+        self.assertEqual(instruction.text, "")
+
+    def test_line_without_semicolon(self):
+        text = "00000000001001110100100000100000"
+        instruction = Instruction(text)
+        self.assertEqual(instruction.bytecode, "00000000001001110100100000100000")
+        self.assertEqual(instruction.text, "")
+        
+
 class TestInstructionR(unittest.TestCase):
     
     def setUp(self):
@@ -71,7 +91,11 @@ class TestInstructionJ(unittest.TestCase):
 
 class TestInstructionInvalid(unittest.TestCase):
     def test_invalid_opcode(self):
-        text = "11111100000000000000000000101010 ; I3: jmp 42"
+        text = "11111100000000000000000000101010"
+        self.assertRaises(KeyError, Instruction, text)
+
+    def test_invalid_funct(self):
+        text = "00000000000000000000000000101010"
         self.assertRaises(KeyError, Instruction, text)
 
 

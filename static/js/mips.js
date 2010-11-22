@@ -1,13 +1,14 @@
+TICKS = 100;
 var mips = {
     _data: [],
     _current_position: null,
+    _running: false,
 
     execute: function(text) {
-        self = this;
         $.ajax({
             url:'/mips/execute',
             data: {"text":bytecode.value},
-            success: self._refresh,
+            success: mips._refresh,
             dataType: "json",
             type: "POST"
         });
@@ -22,18 +23,30 @@ var mips = {
     },
     
     play: function() {
-    
+        if (this._running) {
+            this.pause();
+        }
+        else {
+            this._running = true;
+            this._run();
+        }
     },
     
     pause: function() {
+        this._running = false;
+    },
     
+    _run: function() {
+        if (mips._running) {
+            mips.next();
+            setTimeout(mips._run, TICKS);
+        }
     },
     
     goto: function(position) {
         this._current_position = position;
         var state = this._data[position];
- 
- 
+        
         var arr = ["clock", "pc", "instructions_completed"]
         for (var i=0; i < arr.length; i++) {
             var key = arr[i];
@@ -45,8 +58,8 @@ var mips = {
     },
     
     _refresh: function(data) {
-        self._data = data.result;
-        self.goto(0);
+        mips._data = data.result;
+        mips.goto(0);
     },
     
     _set_registers: function(registers) {
@@ -56,11 +69,22 @@ var mips = {
     },
     
     _set_pipeline: function(pipeline) {
+        var flags_string = function(flags) {
+            var s = ""
+            for (var key in flags) {
+                s += key + ": " + flags[key] + "<br />"
+            }
+            return s;
+        };
         $("#if").html(pipeline.if.text);
-        $("#_id").html(pipeline.id.text);
+        $("#if_flags").html(flags_string(pipeline.if.flags));
+        $("#id_").html(pipeline.id.text);
+        $("#id_flags").html(flags_string(pipeline.id.flags));
         $("#ex").html(pipeline.ex.text);
+        $("#ex_flags").html(flags_string(pipeline.ex.flags));
         $("#mem").html(pipeline.mem.text);
+        $("#mem_flags").html(flags_string(pipeline.mem.flags));
         $("#wb").html(pipeline.wb.text);
-
+        $("#wb_flags").html(flags_string(pipeline.wb.flags));
     },
 }
