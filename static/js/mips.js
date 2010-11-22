@@ -7,7 +7,7 @@ var mips = {
     execute: function(text) {
         $.ajax({
             url:'/mips/execute',
-            data: {"text":bytecode.value},
+            data: {"text":text},
             success: mips._refresh,
             dataType: "json",
             type: "POST"
@@ -47,14 +47,20 @@ var mips = {
         this._current_position = position;
         var state = this._data[position];
         
-        var arr = ["clock", "pc", "instructions_completed"]
-        for (var i=0; i < arr.length; i++) {
-            var key = arr[i];
-            $("#" + key).html(state[key]);
+        if (state) {
+            var arr = ["clock", "pc", "instructions_completed"]
+            for (var i=0; i < arr.length; i++) {
+                var key = arr[i];
+                $("#" + key).html(state[key]);
+            }
+            $("#throughput").html(state["throughput"].toFixed(2));
+            this._set_registers(state["registers"]);
+            this._set_pipeline(state["pipeline"]);
+            this._set_memory(state["memory"]);
         }
-        $("#throughput").html(state["throughput"].toFixed(2));
-        this._set_pipeline(state["pipeline"]);
-        this._set_registers(state["registers"]);
+        else {
+            this._running = false;
+        }
     },
     
     _refresh: function(data) {
@@ -64,7 +70,17 @@ var mips = {
     
     _set_registers: function(registers) {
         for (var i in registers) {
-            $('#r' + i).html(registers[i]);
+            var register_field = $('#r' + i);
+            var value = register_field.html();
+            var color = 'black';
+            register_field.html(registers[i]);
+            
+            register_field.css('color', function() {
+                if (value != registers[i]) {
+                    color = 'red';
+                }
+                return color;
+            });
         }
     },
     
@@ -72,7 +88,7 @@ var mips = {
         var flags_string = function(flags) {
             var s = ""
             for (var key in flags) {
-                s += key + ": " + flags[key] + "<br />"
+                s += key.toLowerCase() + ": " + flags[key] + "<br />"
             }
             return s;
         };
@@ -87,4 +103,24 @@ var mips = {
         $("#wb").html(pipeline[4].text);
         $("#wb_flags").html(flags_string(pipeline[4].flags));
     },
+
+    _set_memory: function(memory) {
+        for (var i=0; i < 4; i++) {
+            if (memory[i]) {
+                $("#memory_addr_" + i).html(memory[i][1]);
+                $("#memory_value_" + i).html(memory[i][2]);
+            }
+        }
+    }
 }
+
+
+function handleFileSelect(files) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var data = e.target.result;
+        $("#filedata").html(data);
+    };
+    reader.readAsText(files[0]);
+}
+

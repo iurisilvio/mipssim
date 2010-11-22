@@ -20,3 +20,28 @@ class TestExamples(unittest.TestCase):
         mips.run()
         self.assertEqual(mips.memory[24], 338350)
         
+    def test_if_example_with_beq_false(self):
+        text = """00100000000000010000000000000011 ; I1: addi R1,R0,3
+                  00100000000000100000000000000010 ; I2: addi R2,R0,2
+                  00010100001000100000000000000000 ; I3: beq R1,R2,0
+                  00001000000000000000000000011000 ; I4: jmp 24
+                  00100000000000010000000000000101 ; I5: addi R1,R0,5
+                  00001000000000000000000000011100 ; I6: jmp 28
+                  00100000000000010000000000000111 ; I7: addi R1,R0,7"""
+        mips = Mips(text)
+        mips.run()
+        self.assertEqual(mips.registers[1], 7)
+        
+    def test_if_example_with_beq_true(self):
+        text = """00100000000000010000000000000010 ; I1: addi R1,R0,2
+                  00100000000000100000000000000010 ; I2: addi R2,R0,2
+                  00010100001000100000000000000000 ; I3: beq R1,R2,0
+                  00001000000000000000000000011000 ; I4: jmp 24
+                  00100000000000010000000000000101 ; I5: addi R1,R0,5
+                  00001000000000000000000000011100 ; I6: jmp 28
+                  00100000000000010000000000000111 ; I7: addi R1,R0,7"""
+        mips = Mips(text)
+        mips.run()
+        self.assertEqual(mips.registers[1], 5)
+        
+    

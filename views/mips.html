@@ -40,20 +40,20 @@
                 <td>Valor</td>
             </tr>
             <tr>
-                <td>24</td>
-                <td>?</td>
+                <td id="memory_addr_3">?</td>
+                <td id="memory_value_3">?</td>
             </tr>
             <tr>
-                <td>28</td>
-                <td>?</td>
+                <td id="memory_addr_2">?</td>
+                <td id="memory_value_2">?</td>
             </tr>
             <tr>
-                <td>32</td>
-                <td>?</td>
+                <td id="memory_addr_1">?</td>
+                <td id="memory_value_1">?</td>
             </tr>
             <tr>
-                <td>36</td>
-                <td>?</td>
+                <td id="memory_addr_0">?</td>
+                <td id="memory_value_0">?</td>
             </tr>
         </table>
         <table id="info">
@@ -130,15 +130,10 @@
 
         <img id="image" src="/static/img/mips.png" alt="" title="MIPS" />
 
-        <div id="controlbar">
-            <button id="prev" class="button" onclick="mips.prev();">&lt;&lt;</button>
-            <button id="play" class="button" onclick="mips.play();">|&gt;</button>
-            <button id="next" class="button" onclick="mips.next();">&gt;&gt;</button>
-        </div>
-
-
         <div id="controls">
-            <textarea id="bytecode">
+            <input type="file" id="files" onchange="handleFileSelect(this.files)" />
+            <button id="execute" onclick="mips.execute(filedata.value);">Executar</button>
+            <textarea id="filedata">
 00100000000010100000000001100100 ; I1: addi R10,R0,100
 10101100000000000000000000011000 ; I2: sw R0,24(R0)
 10101100000000000000000000011100 ; I3: sw R0,28(R0)
@@ -150,7 +145,11 @@
 00100000110001100000000000000001 ; I9: addi R6,R6,1
 10101100000001100000000000011100 ; I10: sw R6,28(R0)
 00011100110010100000000000001100 ; I11: ble R6,R10,12</textarea>
-            <button id="execute" onclick="mips.execute(bytecode.value);">Executar</button>
+            <div id="controlbar">
+                <button id="prev" class="button" onclick="mips.prev();">&lt;&lt;</button>
+                <button id="play" class="button" onclick="mips.play();">|&gt;</button>
+                <button id="next" class="button" onclick="mips.next();">&gt;&gt;</button>
+            </div>
         </div>
     </body>
 </html>

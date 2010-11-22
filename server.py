@@ -1,3 +1,5 @@
+import traceback
+
 import bottle
 from bottle import route, request, static_file
 
@@ -13,6 +15,10 @@ def execution():
             mips.run()
             return {"text":text, "result":mips.history}
         except:
+            print "Exception in user code:"
+            print '-'*60
+            traceback.print_exc(file=sys.stdout)
+            print '-'*60
             return {"error":"TIMEOUT"}
         
     return {"error":"INVALID_TEXT"}

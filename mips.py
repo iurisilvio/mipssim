@@ -35,13 +35,10 @@ class Mips(object):
             self.history.append(self.current_state())
             self.execute_pipeline()
             self.clocks += 1
-            life -= 1
             
-            if life == 0 or all(isinstance(p.instruction, NopInstruction) for p in self.pipeline):
+            if self.clocks > life or all(isinstance(p.instruction, NopInstruction) for p in self.pipeline):
                 self.history.append(self.current_state())
                 break
-                
-        #file("out.txt", 'w').write("\n".join([str(state) for state in self.history]))
 
     def _go_forward_pipeline(self):
         if self.pipeline[4].done:
@@ -72,14 +69,14 @@ class Mips(object):
     
         state = {"pipeline":[p.instruction.current_state() for p in self.pipeline],
                  "registers":self.registers.current_state()["r"],
-                 "memory":self.memory.history[-10:],
+                 "memory":self.memory.history[-4:],
                  "clock":self.clocks,
                  "pc":self.registers["pc"],
                  "instructions_completed":instructions_completed,
                  "throughput":throughput}
         return state
         
-            
+    
 class MipsPhase(object):
     def __init__(self, mips):
         self._mips = mips
@@ -142,6 +139,8 @@ class WriteBack(MipsPhase):
     def execute(self):
         if self.instruction:
             self.done = self.instruction.write_back(self._mips.registers)
+            if self.done and not isinstance(self.instruction, NopInstruction):
+                self._mips.instructions_completed += 1
         else:
             self.done = True
     

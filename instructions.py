@@ -331,8 +331,7 @@ class MulInstruction(BaseInstruction):
 
 class NopInstruction(BaseInstruction):
     def __init__(self):
-        BaseInstruction.__init__(self,
-            REG_DST=1, REG_WRITE=1, EXT_OP=None)
+        BaseInstruction.__init__(self)
         self.text = "nop"
                                   
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import re
 
 ADD = "add"
@@ -55,16 +57,15 @@ map_funct = {ADD:"100000",
 
 class Interpreter(object):
 
-
     def __init__(self, text=None):
         splitted_text = text.split("\n") if text else []
         self.text_instructions = [t.strip() for t in splitted_text if t.strip()]
-        self.bytecode_instructions = []
+        self.instructions = []
         self.labels = {}
         
     def _parse_line(self, line):
         data = line.split(" ", 1)
-        instruction = data[0]
+        instruction = data[0].lower()
         tokens_re = None
         is_label = False
         
@@ -94,33 +95,51 @@ class Interpreter(object):
         
             if instruction in  NOP:
                 bytecode = self._to_bin(0, 32)
+                text = "%s" % instruction
             if instruction == JMP:
-                target_address = self._to_bin(self.labels[tokens.get("label")], 26)
+                label_position = self.labels[tokens.get("label")]
+                target_address = self._to_bin(label_position, 26)
                 bytecode = "%s%s" % (opcode, target_address)
+                text = "%s %s" % (instruction, label_position)
             if instruction in (ADDI, LW, SW, BEQ, BLE, BNE):
-                rs = self._register_to_bin(tokens.get("rs"))
-                rt = self._register_to_bin(tokens.get("rt"))
+                rs = tokens.get("rs")
+                rs_bin = self._register_to_bin(rs)
+                rt = tokens.get("rt")
+                rt_bin = self._register_to_bin(rt)
 
                 if instruction in (BEQ, BNE):
                     label_position = self.labels[tokens.get("label")]
-                    immediate = self._to_bin(label_position - pc - 4, 16)
+                    immediate = label_position - pc - 4
                 elif instruction == BLE:
                     label_position = self.labels[tokens.get("label")]
-                    immediate = self._to_bin(label_position, 16)
+                    immediate = label_position
                 else:
-                    immediate = self._to_bin(tokens.get("immediate"), 16)
-
-                bytecode = "%s%s%s%s" % (opcode, rs, rt, immediate)
+                    immediate = tokens.get("immediate")
+                    
+                immediate_bin = self._to_bin(immediate, 16)
+                    
+                if instruction in (LW, SW):
+                    text = "%s %s,%s(%s)" % (instruction, rt, immediate, rs)
+                elif instruction in (ADDI):
+                    text = "%s %s,%s,%s" % (instruction, rt, rs, immediate)
+                else:
+                    text = "%s %s,%s,%s" % (instruction, rs, rt, immediate)
+                    
+                bytecode = "%s%s%s%s" % (opcode, rs_bin, rt_bin, immediate_bin)
 
             if instruction in (ADD, MUL, SUB):
-                rs = self._register_to_bin(tokens.get("rs"))
-                rt = self._register_to_bin(tokens.get("rt"))
-                rd = self._register_to_bin(tokens.get("rd"))
+                rs = tokens.get("rs")
+                rs_bin = self._register_to_bin(rs)
+                rt = tokens.get("rt")
+                rt_bin = self._register_to_bin(rt)
+                rd = tokens.get("rd")
+                rd_bin = self._register_to_bin(rd)
                 shamt = "00000"
                 funct = map_funct[instruction]
-                bytecode = "%s%s%s%s%s%s" % (opcode, rs, rt, rd, shamt, funct)
+                bytecode = "%s%s%s%s%s%s" % (opcode, rs_bin, rt_bin, rd_bin, shamt, funct)
+                text = "%s %s,%s,%s" % (instruction, rd, rs, rt)
                 
-            return bytecode
+            return "%s ; I%d: %s" % (bytecode, len(self.instructions) + 1, text)
 
     def _register_to_bin(self, register):
         return self._to_bin(int(register.strip("R")), 5) 
@@ -148,6 +167,7 @@ class Interpreter(object):
             if tokens["instruction"] == LABEL:
                 self.labels[tokens["label"]] = pc
             else:
+                tokens["instruction"] = tokens["instruction"].lower()
                 result.append(tokens)
                 pc += 4
 
@@ -155,20 +175,15 @@ class Interpreter(object):
         
     def compile(self):
         parsed_instructions = self.parse()
-        self.bytecode_instructions = []
+        self.instructions = []
         pc = 0
                 
         for instruction in parsed_instructions:
             pc += 4
-            self.bytecode_instructions.append(self._compile_line(instruction, pc))
+            self.instructions.append(self._compile_line(instruction, pc))
             
     def __str__(self):
-        result = ""
-        text_instructions = [text for text in self.text_instructions if not text.endswith(":")]
-        for instruction, bytecode in zip(text_instructions, self.bytecode_instructions):
-            result += "%s ; %s\n" % (bytecode, instruction)
-            
-        return result
+        return "\n".join(self.instructions)
         
         
     def get_bytecode(self):
@@ -179,8 +194,10 @@ class Interpreter(object):
     
 if __name__ == "__main__":
     import sys
-    text = file(sys.argv[1]).read()
-    interpreter = Interpreter(text)
-    interpreter.compile()
-    print interpreter
-
+    try:
+        text = file(sys.argv[1]).read()
+        interpreter = Interpreter(text)
+        interpreter.compile()
+        print interpreter
+    except IndexError:
+        print "usage: interpreter.py <filename>"
