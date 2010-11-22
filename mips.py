@@ -1,7 +1,10 @@
 from __future__ import division
+
 from instructions import Instruction, NopInstruction
 from registers import Registers
 from memory import Memory
+
+import events
 
 REGISTERS_SIZE = 32
 MEMORY_SIZE = 100
@@ -24,7 +27,8 @@ class Mips(object):
         self._mem = MemoryAccess(self)
         self._wb = WriteBack(self)
         self.pipeline = (self._if, self._id, self._ex, self._mem, self._wb)
-        
+
+        events.add_listener("jump", self._jump)        
         
     def run(self, life=MIPS_MAX_AGE):
         while True:
@@ -56,13 +60,18 @@ class Mips(object):
             if not phase.instruction:
                 phase.instruction = NopInstruction()
 
-
+    def _jump(self, pc):
+        self._if.instruction.unlock_registers(self.registers)
+        self._if.instruction = NopInstruction()
+        self._id.instruction.unlock_registers(self.registers)
+        self._id.instruction = NopInstruction()
+    
     def current_state(self):
         instructions_completed = self.instructions_completed
         throughput = instructions_completed / self.clocks if self.clocks > 0 else 0
     
-        state = {"pipeline":[p.instruction.current_state()["text"] for p in self.pipeline],
-                 "registers":self.registers.current_state(),
+        state = {"pipeline":[p.instruction.current_state() for p in self.pipeline],
+                 "registers":self.registers.current_state()["r"],
                  "memory":self.memory.history[-10:],
                  "clock":self.clocks,
                  "pc":self.registers["pc"],
@@ -135,4 +144,5 @@ class WriteBack(MipsPhase):
             self.done = self.instruction.write_back(self._mips.registers)
         else:
             self.done = True
+    
 

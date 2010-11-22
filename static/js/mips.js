@@ -76,15 +76,15 @@ var mips = {
             }
             return s;
         };
-        $("#if").html(pipeline.if.text);
-        $("#if_flags").html(flags_string(pipeline.if.flags));
-        $("#id_").html(pipeline.id.text);
-        $("#id_flags").html(flags_string(pipeline.id.flags));
-        $("#ex").html(pipeline.ex.text);
-        $("#ex_flags").html(flags_string(pipeline.ex.flags));
-        $("#mem").html(pipeline.mem.text);
-        $("#mem_flags").html(flags_string(pipeline.mem.flags));
-        $("#wb").html(pipeline.wb.text);
-        $("#wb_flags").html(flags_string(pipeline.wb.flags));
+        $("#if").html(pipeline[0].text);
+        $("#if_flags").html(flags_string(pipeline[0].flags));
+        $("#id_").html(pipeline[1].text);
+        $("#id_flags").html(flags_string(pipeline[1].flags));
+        $("#ex").html(pipeline[2].text);
+        $("#ex_flags").html(flags_string(pipeline[2].flags));
+        $("#mem").html(pipeline[3].text);
+        $("#mem_flags").html(flags_string(pipeline[3].flags));
+        $("#wb").html(pipeline[4].text);
+        $("#wb_flags").html(flags_string(pipeline[4].flags));
     },
 }

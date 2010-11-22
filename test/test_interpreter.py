@@ -104,6 +104,14 @@ class TestCompile(unittest.TestCase):
         interpreter.compile()
         self.assertEqual(len(interpreter.bytecode_instructions), 0)
 
+    def test_ignoring_label_to_string(self):
+        code = """nop
+                  label:
+                  nop"""
+        interpreter = Interpreter(code)
+        interpreter.compile()
+        self.assertFalse("label" in str(interpreter))
+
 
 class TestInterpreter(unittest.TestCase):
     def test_example(self):

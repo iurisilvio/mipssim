@@ -164,7 +164,8 @@ class Interpreter(object):
             
     def __str__(self):
         result = ""
-        for instruction, bytecode in zip(self.text_instructions, self.bytecode_instructions):
+        text_instructions = [text for text in self.text_instructions if not text.endswith(":")]
+        for instruction, bytecode in zip(text_instructions, self.bytecode_instructions):
             result += "%s ; %s\n" % (bytecode, instruction)
             
         return result
@@ -178,7 +179,6 @@ class Interpreter(object):
     
 if __name__ == "__main__":
     import sys
-    
     text = file(sys.argv[1]).read()
     interpreter = Interpreter(text)
     interpreter.compile()

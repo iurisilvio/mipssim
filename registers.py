@@ -1,4 +1,7 @@
 from copy import copy
+import logging
+
+import events
 
 class RegisterInUseException(BaseException):
     def __init__(self, value):
@@ -6,12 +9,15 @@ class RegisterInUseException(BaseException):
 
     def __str__(self):
         return "<RegisterInUseException %s>" % self.value
-
+        
+    
 class Registers(object):
     def __init__(self, size=32, **kwargs):
         self._array = [0] * size
         self._locks = set()
         self._dict = kwargs
+        
+        events.add_listener("jump", self._jump)
 
     def __getitem__(self, key):
         if key in self._locks:
@@ -45,6 +51,9 @@ class Registers(object):
         except KeyError:
             logging.info("Trying to unlock '%s' but it is not locked.", key)
             
+    def _jump(self, pc):
+        self["pc"] = pc
+    
     def current_state(self):
         return {"r":copy(self._array),
                 "keys":copy(self._dict),

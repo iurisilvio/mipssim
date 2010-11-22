@@ -140,3 +140,24 @@ class TestInstructionDependencies(unittest.TestCase):
         self.assertTrue(isinstance(mips.pipeline[2].instruction, AddInstruction))
 
 
+class TestBranching(unittest.TestCase):
+    def test_without_branch(self):
+        text = '''00100000010000100000000000000101 ; I1: addi R2,R2,5
+                  00100000001000010000000000001010 ; I2: addi R1,R1,10
+                  00011100001000100000000000000100 ; I3: ble R1,R2,4
+                  00100000001000010000000001000000 ; I4: addi R1,R1,64'''
+        self.mips = Mips(text)
+        self.mips.run()
+        self.assertEqual(self.mips.registers[1], 74)
+
+    def test_with_branch(self):
+        text = '''00100000010000100000000000100011 ; I1: addi R2,R2,35
+                  00100000001000010000000000001101 ; I2: addi R1,R1,13
+                  00011100001000100000000000000100 ; I3: ble R1,R2,4
+                  00100000001000010000000000100000 ; I4: addi R1,R1,32'''
+        self.mips = Mips(text)
+        self.mips.run()
+
+        self.assertEqual(self.mips.registers[1], 71)
+
+

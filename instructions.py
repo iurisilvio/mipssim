@@ -3,6 +3,8 @@ from copy import copy
 
 from registers import RegisterInUseException
 
+import events
+
 
 ALU_SRC = "ALU_SRC"
 REG_DST = "REG_DST"
@@ -110,8 +112,10 @@ class BaseInstruction(object):
                       EXT_OP:kwargs.get(EXT_OP, 0)}
                       
         self.execution_time = kwargs.get("execution_time", 1)
+        self._registers = []
         
     def instruction_decode(self, registers):
+        self.lock_registers(registers)
         return True
         
     def execute(self):
@@ -122,8 +126,17 @@ class BaseInstruction(object):
         return True
         
     def write_back(self, registers):
+        self.unlock_registers(registers)
         return True
         
+    def lock_registers(self, registers):
+        for register in self._registers:
+            registers.lock(register)
+
+    def unlock_registers(self, registers):
+        for register in self._registers:
+            registers.unlock(register)
+                
     def current_state(self):
         state = {"text":self.text,
                  "flags":copy(self.flags)}
@@ -139,7 +152,8 @@ class AddInstruction(BaseInstruction):
         try:
             self.rs_value = registers[self.rs]
             self.rt_value = registers[self.rt]
-            registers.lock(self.rd)
+            self._registers.append(self.rd)
+            BaseInstruction.instruction_decode(self, registers)
             return True
         except RegisterInUseException:
             return False
@@ -150,7 +164,7 @@ class AddInstruction(BaseInstruction):
         return self.execution_time == 0
         
     def write_back(self, registers):
-        registers.unlock(self.rd)
+        BaseInstruction.write_back(self, registers)
         registers[self.rd] = self.rd_value
         return True
 
@@ -163,7 +177,8 @@ class AddiInstruction(BaseInstruction):
     def instruction_decode(self, registers):
         try:
             self.rs_value = registers[self.rs]
-            registers.lock(self.rt)
+            self._registers.append(self.rt)
+            BaseInstruction.instruction_decode(self, registers)
             return True
         except RegisterInUseException:
             return False
@@ -174,7 +189,7 @@ class AddiInstruction(BaseInstruction):
         return self.execution_time == 0
         
     def write_back(self, registers):
-        registers.unlock(self.rt)
+        BaseInstruction.write_back(self, registers)
         registers[self.rt] = self.rt_value
         return True
         
@@ -197,11 +212,8 @@ class BeqInstruction(BaseInstruction):
         BaseInstruction.execute(self)
         if self.rs_value == self.rt_value:
             self.pc = self.pc + self.immediate
+            events.trigger('jump', self.pc)
         return self.execution_time == 0
-        
-    def write_back(self, registers):
-        registers["pc"] = self.pc
-        return True
         
         
 class BleInstruction(BaseInstruction):
@@ -222,12 +234,9 @@ class BleInstruction(BaseInstruction):
         BaseInstruction.execute(self)
         if self.rs_value <= self.rt_value:
             self.pc = self.immediate
+            events.trigger('jump', self.pc)
         return self.execution_time == 0
         
-    def write_back(self, registers):
-        registers["pc"] = self.pc
-        return True
-
 
 class BneInstruction(BaseInstruction):
     def __init__(self):
@@ -247,13 +256,10 @@ class BneInstruction(BaseInstruction):
         BaseInstruction.execute(self)
         if self.rs_value != self.rt_value:
             self.pc = self.pc + self.immediate
+            events.trigger('jump', self.pc)
         return self.execution_time == 0
-                    
-    def write_back(self, registers):
-        registers["pc"] = self.pc
-        return True
-        
-        
+                
+    
 class JmpInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
@@ -263,8 +269,9 @@ class JmpInstruction(BaseInstruction):
         self.pc = self.target_address
         return True
         
-    def write_back(self, registers):
-        registers["pc"] = self.pc
+    def execute(self):
+        BaseInstruction.execute(self)
+        events.trigger('jump', self.pc)
         return True
         
     
@@ -276,7 +283,8 @@ class LwInstruction(BaseInstruction):
     def instruction_decode(self, registers):
         try:
             self.rs_value = registers[self.rs]
-            registers.lock(self.rt)
+            self._registers.append(self.rt)
+            BaseInstruction.instruction_decode(self, registers)
             return True
         except RegisterInUseException:
             return False
@@ -291,7 +299,7 @@ class LwInstruction(BaseInstruction):
         return True
                 
     def write_back(self, registers):
-        registers.unlock(self.rt)
+        BaseInstruction.write_back(self, registers)
         registers[self.rt] = self.rt_value
         return True
         
@@ -337,7 +345,8 @@ class SubInstruction(BaseInstruction):
         try:
             self.rs_value = registers[self.rs]
             self.rt_value = registers[self.rt]
-            registers.lock(self.rd)
+            self._registers.append(self.rd)
+            BaseInstruction.instruction_decode(self, registers)
             return True
         except RegisterInUseException:
             return False
@@ -348,7 +357,7 @@ class SubInstruction(BaseInstruction):
         return self.execution_time == 0
 
     def write_back(self, registers):
-        registers.unlock(self.rd)
+        BaseInstruction.write_back(self, registers)
         registers[self.rd] = self.rd_value
         return True
         
