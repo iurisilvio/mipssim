@@ -26,3 +26,12 @@ class TestEvents(unittest.TestCase):
         self.events.add_listener("test", self.listener)
         self.events.trigger("test", 1, 2)
         self.assertEqual(self.count, 3)
+        
+    def test_remove_listener(self):
+        self.events.add_listener("test", self.listener)
+        self.events.remove_listener("test", self.listener)
+        
+    def test_remove_inexistent_listener(self):
+        self.events.remove_listener("test", self.listener)
+        
+

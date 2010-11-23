@@ -1,13 +1,14 @@
 TICKS = 100;
+
 var mips = {
     _data: [],
     _current_position: null,
     _running: false,
 
-    execute: function(text) {
+    execute: function(text, bypassing) {
         $.ajax({
             url:'/mips/execute',
-            data: {"text":text},
+            data: {"text":text, "bypassing":bypassing},
             success: mips._refresh,
             dataType: "json",
             type: "POST"
@@ -19,7 +20,9 @@ var mips = {
     },
     
     prev: function() {
-        this.goto(--this._current_position);
+        if (this._current_position > 0) {
+            this.goto(--this._current_position);
+        }
     },
     
     play: function() {

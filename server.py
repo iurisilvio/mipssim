@@ -8,8 +8,11 @@ from mips import Mips
 @route("/mips/execute", method="POST")
 def execution():
     text = request.POST.get("text")
+    bypassing = bool(int(request.POST.get("bypassing", 0)))
+
     if text:
         mips = Mips(text)
+        mips.enable_bypassing(bypassing)
 
         try:
             mips.run()

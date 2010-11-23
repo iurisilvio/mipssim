@@ -105,22 +105,23 @@ class BaseTestInstruction(object):
     
     def execute(self):
         self.instruction.instruction_decode(self.registers)
-        return self.instruction.execute()
+        return self.instruction.execute(self.registers)
 
     def memory_access(self):
         self.instruction.instruction_decode(self.registers)
-        self.instruction.execute()
+        self.instruction.execute(self.registers)
         self.instruction.memory_access(self.memory)
 
     def write_back(self):
+        import inspect
         self.instruction.instruction_decode(self.registers)
-        self.instruction.execute()
+        self.instruction.execute(self.registers)
         self.instruction.memory_access(self.memory)
         self.instruction.write_back(self.registers)
         
     def test_all_true_returns(self):
         self.assertTrue(self.instruction.instruction_decode(self.registers))
-        self.assertTrue(self.instruction.execute())
+        self.assertTrue(self.instruction.execute(self.registers))
         self.assertTrue(self.instruction.memory_access(self.memory))
         self.assertTrue(self.instruction.write_back(self.registers))
         
@@ -407,8 +408,8 @@ class TestMulInstruction(BaseTestInstruction, unittest.TestCase):
         
     def test_all_true_returns(self):
         self.assertTrue(self.instruction.instruction_decode(self.registers))
-        self.assertFalse(self.instruction.execute())
-        self.assertTrue(self.instruction.execute())
+        self.assertFalse(self.instruction.execute(self.registers))
+        self.assertTrue(self.instruction.execute(self.registers))
         self.assertTrue(self.instruction.memory_access(self.memory))
         self.assertTrue(self.instruction.write_back(self.registers))
 

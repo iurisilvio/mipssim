@@ -5,6 +5,7 @@ from registers import RegisterInUseException
 
 import events
 
+BYPASSING = False
 
 ALU_SRC = "ALU_SRC"
 REG_DST = "REG_DST"
@@ -118,7 +119,7 @@ class BaseInstruction(object):
         self.lock_registers(registers)
         return True
         
-    def execute(self):
+    def execute(self, registers=None):
         self.execution_time -= 1
         return self.execution_time == 0
         
@@ -142,7 +143,7 @@ class BaseInstruction(object):
                  "flags":copy(self.flags)}
         return state
         
-
+    
 class AddInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
@@ -158,9 +159,11 @@ class AddInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value + self.rt_value
+        if BYPASSING:
+            registers[self.rd] = self.rd_value
         return self.execution_time == 0
         
     def write_back(self, registers):
@@ -173,7 +176,7 @@ class AddiInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
             REG_DST=1, REG_WRITE=1, EXT_OP=1, ALU_SRC=1)
-                                           
+            
     def instruction_decode(self, registers):
         try:
             self.rs_value = registers[self.rs]
@@ -183,9 +186,11 @@ class AddiInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
 
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         self.rt_value = self.rs_value + self.immediate
+        if BYPASSING:
+            registers[self.rt] = self.rt_value
         return self.execution_time == 0
         
     def write_back(self, registers):
@@ -208,7 +213,7 @@ class BeqInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         if self.rs_value == self.rt_value:
             self.pc = self.pc + self.immediate
@@ -230,7 +235,7 @@ class BleInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         if self.rs_value <= self.rt_value:
             self.pc = self.immediate
@@ -252,7 +257,7 @@ class BneInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         if self.rs_value != self.rt_value:
             self.pc = self.pc + self.immediate
@@ -269,7 +274,7 @@ class JmpInstruction(BaseInstruction):
         self.pc = self.target_address
         return True
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         events.trigger('jump', self.pc)
         return True
@@ -289,7 +294,7 @@ class LwInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
                  
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         self.target_address = self.rs_value + self.immediate
         return self.execution_time == 0
@@ -318,9 +323,11 @@ class MulInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value * self.rt_value
+        if BYPASSING:
+            registers[self.rd] = self.rd_value
         return self.execution_time == 0
         
     def write_back(self, registers):
@@ -350,9 +357,11 @@ class SubInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
         
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value - self.rt_value
+        if BYPASSING:
+            registers[self.rd] = self.rd_value
         return self.execution_time == 0
 
     def write_back(self, registers):
@@ -374,7 +383,7 @@ class SwInstruction(BaseInstruction):
         except RegisterInUseException:
             return False
 
-    def execute(self):
+    def execute(self, registers):
         BaseInstruction.execute(self)
         self.memory_address = self.rs_value + self.immediate
         return self.execution_time == 0

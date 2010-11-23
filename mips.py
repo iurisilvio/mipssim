@@ -1,5 +1,6 @@
 from __future__ import division
 
+import instructions
 from instructions import Instruction, NopInstruction
 from registers import Registers
 from memory import Memory
@@ -76,6 +77,9 @@ class Mips(object):
                  "throughput":throughput}
         return state
         
+    def enable_bypassing(self, value):
+        instructions.BYPASSING = value
+
     
 class MipsPhase(object):
     def __init__(self, mips):
@@ -112,6 +116,10 @@ class InstructionFetch(MipsPhase):
 
     
 class InstructionDecode(MipsPhase):
+    def _on_register_changed(self, **kwargs):
+        for key, value in kwargs.items():
+            self.registers[key] = value
+
     def execute(self):
         if self.instruction:
             self.done = self.instruction.instruction_decode(self._mips.registers)
@@ -122,7 +130,7 @@ class InstructionDecode(MipsPhase):
 class Execute(MipsPhase):
     def execute(self):
         if self.instruction:
-            self.done = self.instruction.execute()
+            self.done = self.instruction.execute(self._mips.registers)
         else:
             self.done = True
         

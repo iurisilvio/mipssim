@@ -24,7 +24,6 @@ class TestRegisters(unittest.TestCase):
     def test_locked_register(self):
         self.registers.lock(3)
         self.assertRaises(RegisterInUseException, self.registers.__getitem__, 3)
-        self.assertRaises(RegisterInUseException, self.registers.__setitem__, 3, "anything")
     
     def test_unlock_register(self):
         self.registers[3] = 4
@@ -36,6 +35,31 @@ class TestRegisters(unittest.TestCase):
         self.registers[3] = 0
         self.assertEquals(self.registers[3], 0)
 
+
+class TestTemporaryRegisters(unittest.TestCase):
+    def setUp(self):
+        self.registers = Registers()
+        self.registers[3] = 4
+        self.registers.lock(3)
+        
+    def test_set_register_locked(self):
+        self.registers[3] = 2
+        self.assertEqual(self.registers._array[3], 4)
+        self.assertEqual(self.registers._tmp[3], 2)
+        
+    def test_get_register_locked_without_tmp_value(self):
+        self.assertRaises(RegisterInUseException, self.registers.__getitem__, 3)
+
+    def test_get_register_locked_with_tmp_value(self):
+        self.registers[3] = 2
+        self.assertEqual(self.registers[3], 2)
+
+    def test_get_register_after_unlock(self):
+        self.registers[3] = 2
+        self.registers.unlock(3)
+        self.assertEqual(self.registers._array[3], 4)
+        self.registers[3] = 2
+        self.assertEqual(self.registers._array[3], 2)
 
 
 class TestRegisterInUseException(unittest.TestCase):

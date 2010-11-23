@@ -3,6 +3,10 @@ body, table {
     font-size: 11px;
 }
 
+#left_column {
+    width: 700px;
+}
+
 #instructions {
     border-collapse: collapse;
     float: left;
@@ -24,28 +28,30 @@ body, table {
 
 #memory {
     border-collapse: collapse;
-    position: absolute;
-    top: 160px;
+    position: relative;
+    display: block;
+    float: left;
 }
 
 #info {
     border-collapse: collapse;
-    position: absolute;
-    top: 265px;
+    position: relative;
+    display: block;
+    float: left;
 }
 
 #registers {
     border-collapse: collapse;
-    position: absolute;
-    top: 340px;
+    position: relative;
+    display: block;
+    float: left;
 }
 
 #image {
-    position: absolute;
+    position: relative;
+    display: block;
     border: 1px solid #DDD;
-    top: 160px;
-    left: 200px;
-    width: 500px;
+    width: 600px;
 }
 
 #controls {
@@ -79,4 +85,8 @@ body, table {
 #file {
     display: block;
     position: relative;
+}
+
+.datatable {
+    margin: 5px;
 }

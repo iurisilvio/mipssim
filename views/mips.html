@@ -8,7 +8,9 @@
         <link rel="stylesheet" href="/static/css/style.css" type="text/css"></link>
     </head>
     <body>
-        <table id="instructions">
+        <div id="left_column">
+        <img id="image" src="/static/img/mips.png" alt="" title="MIPS" />
+        <table id="instructions" class="datatable">
             <tr id="id">
                 <th>Instruction Fetch</th>
                 <th>Instruction Decode</th>
@@ -31,7 +33,7 @@
                 <td id="wb_flags">&nbsp;</td>
             </tr>
         </table>
-        <table id="memory">
+        <table id="memory" class="datatable">
             <tr>
                 <th colspan="2">Memória recente usada</th>
             </tr>
@@ -56,7 +58,7 @@
                 <td id="memory_value_0">?</td>
             </tr>
         </table>
-        <table id="info">
+        <table id="info" class="datatable">
             <tr>
                 <td>Clock</td>
                 <td id="clock">?</td>
@@ -74,7 +76,7 @@
                 <td id="throughput">?</td>
             </tr>
         </table>
-                <table id="registers">
+        <table id="registers" class="datatable">
             <tr>
                 <th colspan="8">Registradores</th>
             </tr>
@@ -127,12 +129,12 @@
                 <td>R31</td><td id="r31">0</td>
             </tr>
         </table>
-
-        <img id="image" src="/static/img/mips.png" alt="" title="MIPS" />
-
+       </div>
         <div id="controls">
             <input type="file" id="files" onchange="handleFileSelect(this.files)" />
-            <button id="execute" onclick="mips.execute(filedata.value);">Executar</button>
+            <button id="execute" onclick="mips.execute(filedata.value, 0);">Executar sem bypassing</button>
+            <button id="execute" onclick="mips.execute(filedata.value, 1);">Executar com bypassing</button>
+
             <textarea id="filedata">
 00100000000010100000000001100100 ; I1: addi R10,R0,100
 10101100000000000000000000011000 ; I2: sw R0,24(R0)

@@ -14,14 +14,18 @@ class RegisterInUseException(BaseException):
 class Registers(object):
     def __init__(self, size=32, **kwargs):
         self._array = [0] * size
-        self._locks = set()
         self._dict = kwargs
+        self._locks = set()
+        self._tmp = {}
         
         events.add_listener("jump", self._jump)
 
     def __getitem__(self, key):
         if key in self._locks:
-            raise RegisterInUseException(key)
+            try:
+                return self._tmp[key]
+            except KeyError:
+                raise RegisterInUseException(key)
 
         if isinstance(key, int):
             value = self._array[key]
@@ -33,9 +37,8 @@ class Registers(object):
             
     def __setitem__(self, key, value):
         if key in self._locks:
-            raise RegisterInUseException(key)
-    
-        if isinstance(key, int):
+            self._tmp[key] = value
+        elif isinstance(key, int):
             self._array[key] = value
         elif isinstance(key, basestring):
             self._dict[key] = value
@@ -48,6 +51,10 @@ class Registers(object):
     def unlock(self, key):
         try:
             self._locks.remove(key)
+            try:
+                self._tmp.pop(key)
+            except KeyError:
+                pass
         except KeyError:
             logging.info("Trying to unlock '%s' but it is not locked.", key)
             
