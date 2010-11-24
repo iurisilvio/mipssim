@@ -9,7 +9,7 @@ body, table {
     float: left;
 }
 #right_column {
-    width: 500px;
+    width: 540px;
     position: relative;
     float: left;
 }
@@ -58,7 +58,7 @@ body, table {
     position: relative;
     display: block;
     border: 1px solid #DDD;
-    width: 600px;
+    width: 550px;
 }
 
 #controls {
@@ -75,7 +75,7 @@ body, table {
 }
 
 #bytecode, #assembly {
-    width: 90%;
+    width: 100%;
     height: 200px;
     position: relative;
     display: block;

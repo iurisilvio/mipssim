@@ -165,6 +165,8 @@ ble R6,R10,LOOP</textarea>
 00011100110010100000000000001100 ; I11: ble R6,R10,12</textarea>
                 <input type="checkbox" id="data_forwarding" name="data_forwarding" /> Data Forwarding
                 <button id="execute" onclick="mips.execute(bytecode.value, $('#data_forwarding')[0].checked);">Executar</button>
+                <button id="compare" onclick="mips.compare(bytecode.value);">Comparar</button>
+
             </div>
             <div id="controls">
                 <h4>Controls</h4>

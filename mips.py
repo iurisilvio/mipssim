@@ -14,10 +14,11 @@ class Mips(object):
         self.instructions = instructions.split("\n") if instructions else []
         self.data_forwarding = data_forwarding
         
-        self.registers = Registers(size=REGISTERS_SIZE, pc=0)
+        self.registers = Registers(size=REGISTERS_SIZE)
         self.memory = Memory(size=MEMORY_SIZE)
         self.history = []
 
+        self.pc = 0
         self.clocks = 0
         self.instructions_completed = 0
         
@@ -60,17 +61,17 @@ class Mips(object):
         self._if.instruction = NopInstruction()
         self._id.instruction.unlock_registers(self)
         self._id.instruction = NopInstruction()
-        self.registers["pc"] = pc
+        self.pc = pc
     
     def current_state(self):
         instructions_completed = self.instructions_completed
         throughput = instructions_completed / self.clocks if self.clocks > 0 else 0
     
         state = {"pipeline":[p.instruction.current_state() for p in self.pipeline],
-                 "registers":self.registers.current_state()["r"],
+                 "registers":self.registers.current_state(),
                  "memory":self.memory.history[-4:],
                  "clock":self.clocks,
-                 "pc":self.registers["pc"],
+                 "pc":self.pc,
                  "instructions_completed":instructions_completed,
                  "throughput":throughput}
         return state
@@ -97,11 +98,11 @@ class MipsPhase(object):
 class InstructionFetch(MipsPhase):
     def execute(self):
         if not self.instruction:
-            instruction_number = int(self._mips.registers["pc"] / 4)
+            instruction_number = int(self._mips.pc / 4)
             
             try:
                 instruction = Instruction(self._mips.instructions[instruction_number])
-                self._mips.registers["pc"] += 4
+                self._mips.pc += 4
             except IndexError:
                 instruction = None
             

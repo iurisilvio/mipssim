@@ -14,22 +14,34 @@ def mips_ui():
 @route("/mips/execute", method="POST")
 def execution():
     text = request.POST.get("text")
-    data_forwarding = bool(request.POST.get("data_forwarding", False))
+    data_forwarding = bool(int(request.POST.get("data_forwarding", 0)))
 
     if text:
-    
         mips = Mips(text, data_forwarding=data_forwarding)
-
-        try:
-            mips.run()
-            return {"text":text, "result":mips.history}
-        except:
-            print "Exception in user code:"
-            print '-'*60
-            traceback.print_exc(file=sys.stdout)
-            print '-'*60
-            return {"error":"TIMEOUT"}
+        mips.run()
+        return {"text":text, "result":mips.history}
         
+    return {"error":"INVALID_TEXT"}
+
+@route("/mips/compare", method="POST")
+def execution():
+    text = request.POST.get("text")
+
+    if text:
+        slower_mips = Mips(text, data_forwarding=False)
+        slower_mips.run()
+        slower_mips_state = slower_mips.current_state()
+
+        faster_mips = Mips(text, data_forwarding=True)
+        faster_mips.run()
+        faster_mips_state = faster_mips.current_state()
+
+        return {"text":text,
+                "slower_mips":{"clocks":slower_mips_state["clock"],
+                               "throughput":slower_mips_state["throughput"]},
+                "faster_mips":{"clocks":faster_mips_state["clock"],
+                               "throughput":faster_mips_state["throughput"]}}
+
     return {"error":"INVALID_TEXT"}
 
 @route("/mips/compile", method="POST")

@@ -158,7 +158,7 @@ class AddInstruction(BaseInstruction):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value + self.rt_value
         if mips.data_forwarding:
-            registers[self.rd] = self.rd_value
+            mips.registers[self.rd] = self.rd_value
         return self.execution_time == 0
         
     def write_back(self, mips):
@@ -203,7 +203,7 @@ class BeqInstruction(BaseInstruction):
         try:
             self.rs_value = mips.registers[self.rs]
             self.rt_value = mips.registers[self.rt]
-            self.pc = mips.registers["pc"]
+            self.pc = mips.pc
             return True
         except RegisterInUseException:
             return False
@@ -225,7 +225,7 @@ class BleInstruction(BaseInstruction):
         try:
             self.rs_value = mips.registers[self.rs]
             self.rt_value = mips.registers[self.rt]
-            self.pc = mips.registers["pc"]
+            self.pc = mips.pc
             return True
         except RegisterInUseException:
             return False
@@ -247,7 +247,7 @@ class BneInstruction(BaseInstruction):
         try:
             self.rs_value = mips.registers[self.rs]
             self.rt_value = mips.registers[self.rt]
-            self.pc = mips.registers["pc"]
+            self.pc = mips.pc
             return True
         except RegisterInUseException:
             return False
@@ -320,11 +320,12 @@ class MulInstruction(BaseInstruction):
             return False
         
     def execute(self, mips):
-        BaseInstruction.execute(self)
-        self.rd_value = self.rs_value * self.rt_value
-        if mips.data_forwarding:
-            mips.registers[self.rd] = self.rd_value
-        return self.execution_time == 0
+        if BaseInstruction.execute(self):
+            self.rd_value = self.rs_value * self.rt_value
+            if mips.data_forwarding:
+                mips.registers[self.rd] = self.rd_value
+            return True
+        return False
         
     def write_back(self, mips):
         mips.registers.unlock(self.rd)

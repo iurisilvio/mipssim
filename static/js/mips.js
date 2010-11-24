@@ -5,22 +5,32 @@ var mips = {
     _current_position: null,
     _running: false,
 
+    compare: function(text, data_forwarding) {
+        $.ajax({
+            url:'/mips/compare',
+            data: {"text":text},
+            success: mips._compare_callback,
+            dataType: "json",
+            type: "POST"
+        });
+    },
+
     compile: function(text, data_forwarding) {
         $.ajax({
             url:'/mips/compile',
             data: {"text":text},
-            success: mips._compiled,
+            success: mips._compile_callback,
             dataType: "json",
             type: "POST"
         });
     },
 
     execute: function(text, data_forwarding) {
-        bool = (data_forwarding) ? "True" : "False";
+        var bool = (data_forwarding) ? 1 : 0;
         $.ajax({
             url:'/mips/execute',
             data: {"text":text, "data_forwarding":bool},
-            success: mips._refresh,
+            success: mips._execute_callback,
             dataType: "json",
             type: "POST"
         });
@@ -30,11 +40,17 @@ var mips = {
         if (this._current_position < this._data.length - 1) {
             this.goto(++this._current_position);
         }
+        else {
+            this._running = false;
+        }
     },
     
     prev: function() {
         if (this._current_position > 0) {
             this.goto(--this._current_position);
+        }
+        else {
+            this._running = false;
         }
     },
     
@@ -69,21 +85,29 @@ var mips = {
                 var key = arr[i];
                 $("#" + key).html(state[key]);
             }
-            $("#throughput").html(state["throughput"].toFixed(2));
-            this._set_registers(state["registers"]);
-            this._set_pipeline(state["pipeline"]);
-            this._set_memory(state["memory"]);
+            $("#throughput").html(state.throughput.toFixed(2));
+            this._set_registers(state.registers);
+            this._set_pipeline(state.pipeline);
+            this._set_memory(state.memory);
         }
         else {
             this._running = false;
         }
     },
+    
+    _compare_callback: function(data) {
+        result = "Produtividade\n";
+        result += data.slower_mips.throughput.toFixed(2);
+        result += " x ";
+        result += data.faster_mips.throughput.toFixed(2);
+        alert(result);
+    },
 
-    _compiled: function(data) {
+    _compile_callback: function(data) {
         bytecode.value = data.result;
     },
     
-    _refresh: function(data) {
+    _execute_callback: function(data) {
         mips._data = data.result;
         mips.goto(0);
     },

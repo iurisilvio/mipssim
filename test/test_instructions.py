@@ -9,10 +9,11 @@ class MipsStub(object):
     def __init__(self, registers=None, memory=None, data_forwarding=False):
         self.registers = registers
         self.memory = memory
+        self.pc = 0
         self.data_forwarding = data_forwarding
 
     def jump(self, pc):
-        self.registers["pc"] = pc
+        self.pc = pc
         
 
 class TestBasicInstances(unittest.TestCase):
@@ -113,18 +114,17 @@ class BaseTestInstruction(object):
         self.instruction.instruction_decode(self._mips)
     
     def execute(self):
-        self.instruction.instruction_decode(self._mips)
-        return self.instruction.execute(self._mips)
+        self.instruction_decode()
+        while not self.instruction.execute(self._mips):
+            pass
+        return True
 
     def memory_access(self):
-        self.instruction.instruction_decode(self._mips)
-        self.instruction.execute(self._mips)
+        self.execute()
         self.instruction.memory_access(self._mips)
 
     def write_back(self):
-        self.instruction.instruction_decode(self._mips)
-        self.instruction.execute(self._mips)
-        self.instruction.memory_access(self._mips)
+        self.memory_access()
         self.instruction.write_back(self._mips)
         
     def test_all_true_returns(self):
@@ -157,6 +157,11 @@ class TestAddInstruction(BaseTestInstruction, unittest.TestCase):
         # don't change registers
         self.assertEqual(self._mips.registers[1], 3)
         self.assertEqual(self._mips.registers[7], 2)
+        
+    def test_execute_with_data_forward(self):
+        self._mips.data_forwarding = True
+        self.assertTrue(BaseTestInstruction.execute(self))
+        self.assertEqual(self._mips.registers[9], 5)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -195,6 +200,11 @@ class TestAddiInstruction(BaseTestInstruction, unittest.TestCase):
         self.assertTrue(BaseTestInstruction.execute(self))
         self.assertEqual(self.instruction.rt_value, 5)
         
+    def test_execute_with_data_forward(self):
+        self._mips.data_forwarding = True
+        self.assertTrue(BaseTestInstruction.execute(self))
+        self.assertEqual(self._mips.registers[6], 5)
+        
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
                 
@@ -232,13 +242,13 @@ class TestBeqInstruction(BaseTestInstruction, unittest.TestCase):
     def test_execute_with_jump(self):
         self.assertTrue(BaseTestInstruction.execute(self))
         self.assertEqual(self.instruction.pc, 10)
-        self.assertEqual(self._mips.registers["pc"], 10)
+        self.assertEqual(self._mips.pc, 10)
         
     def test_execute_without_jump(self):
         self._mips.registers[3] = 2
         BaseTestInstruction.execute(self)
         self.assertEqual(self.instruction.pc, 0)
-        self.assertEqual(self._mips.registers["pc"], 0)
+        self.assertEqual(self._mips.pc, 0)
 
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -267,13 +277,13 @@ class TestBleInstruction(BaseTestInstruction, unittest.TestCase):
     def test_execute_with_jump(self):
         self.assertTrue(BaseTestInstruction.execute(self))
         self.assertEqual(self.instruction.pc, 20)
-        self.assertEqual(self._mips.registers["pc"], 20)
+        self.assertEqual(self._mips.pc, 20)
         
     def test_execute_without_jump(self):
         self._mips.registers[10] = 2
         BaseTestInstruction.execute(self)
         self.assertEqual(self.instruction.pc, 0)
-        self.assertEqual(self._mips.registers["pc"], 0)
+        self.assertEqual(self._mips.pc, 0)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -303,38 +313,37 @@ class TestBneInstruction(BaseTestInstruction, unittest.TestCase):
     def test_execute_with_jump(self):
         self.assertTrue(BaseTestInstruction.execute(self))
         self.assertEqual(self.instruction.pc, 10)
-        self.assertEqual(self._mips.registers["pc"], 10)
+        self.assertEqual(self._mips.pc, 10)
         
     def test_execute_without_jump(self):
         self._mips.registers[2] = 3
         self.assertTrue(BaseTestInstruction.execute(self))
         self.assertEqual(self.instruction.pc, 0)
-        self.assertEqual(self._mips.registers["pc"], 0)
+        self.assertEqual(self._mips.pc, 0)
 
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
                 
     def test_write_back(self):
         BaseTestInstruction.write_back(self)
-
         
-        
+    
 class TestJmpInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
         self.text = "00001000000000000000000011001000 ; I15: jmp 200"
         self.instruction = Instruction(self.text)
 
-        registers = Registers(pc=4)
+        registers = Registers()
         self._mips = MipsStub(registers, memory=[])
     
     def test_instruction_decode(self):
         BaseTestInstruction.instruction_decode(self)
         self.assertEqual(self.instruction.pc, 200)
-        self.assertEqual(self._mips.registers["pc"], 4)
+        self.assertEqual(self._mips.pc, 0)
         
     def test_execute(self):
         self.assertTrue(BaseTestInstruction.execute(self))
-        self.assertEqual(self._mips.registers["pc"], 200)
+        self.assertEqual(self._mips.pc, 200)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -399,11 +408,15 @@ class TestMulInstruction(BaseTestInstruction, unittest.TestCase):
         self.assertEqual(self.instruction.rt_value, 2)
         
     def test_execute(self):
-        self.assertFalse(BaseTestInstruction.execute(self))
+        BaseTestInstruction.execute(self)
         self.assertEqual(self.instruction.rd_value, 6)
-        # don't change registers
         self.assertEqual(self._mips.registers[1], 3)
         self.assertEqual(self._mips.registers[7], 2)
+        
+    def test_execute_with_data_forward(self):
+        self._mips.data_forwarding = True
+        BaseTestInstruction.execute(self)
+        self.assertEqual(self._mips.registers[9], 6)
         
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -412,7 +425,6 @@ class TestMulInstruction(BaseTestInstruction, unittest.TestCase):
         BaseTestInstruction.write_back(self)
         self.assertEqual(self._mips.registers[1], 3)
         self.assertEqual(self._mips.registers[7], 2)
-        # register changed
         self.assertEqual(self._mips.registers[9], 6)
         
     def test_all_true_returns(self):

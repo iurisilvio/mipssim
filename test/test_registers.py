@@ -4,22 +4,15 @@ from registers import Registers, RegisterInUseException
 
 class TestRegisters(unittest.TestCase):
     def setUp(self):
-        self.registers = Registers(pc=0)
+        self.registers = Registers()
         
-    def test_access_indexed_register(self):
+    def test_access_register(self):
         self.assertEqual(self.registers[0], 0)
         self.assertEqual(self.registers[10], 0)
     
-    def test_change_indexed_registers(self):
+    def test_change_registers(self):
         self.registers[3] = 10
         self.assertEqual(self.registers[3], 10)
-        
-    def test_access_to_keyword_register(self):
-        self.assertEqual(self.registers["pc"], 0)
-    
-    def test_change_keyword_register(self):
-        self.registers["pc"] += 4
-        self.assertEqual(self.registers["pc"], 4)
         
     def test_locked_register(self):
         self.registers.lock(3)
@@ -31,11 +24,15 @@ class TestRegisters(unittest.TestCase):
         self.registers.lock(3)
         self.registers.unlock(3)
         
-        self.assertEquals(self.registers[3], 4)
+        self.assertEqual(self.registers[3], 4)
         self.registers[3] = 0
-        self.assertEquals(self.registers[3], 0)
+        self.assertEqual(self.registers[3], 0)
 
-
+    def test_not_number_key(self):
+        self.assertRaises(AttributeError, self.registers.__getitem__, "key")
+        self.assertRaises(AttributeError, self.registers.__setitem__, "key", "value")
+        
+    
 class TestTemporaryRegisters(unittest.TestCase):
     def setUp(self):
         self.registers = Registers()
