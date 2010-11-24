@@ -44,7 +44,7 @@ class TestOneInstructionOnMips(unittest.TestCase):
         for item in self.mips.pipeline:
             self.assertTrue(isinstance(item.instruction, NopInstruction));
 
-
+    
 class TestMipsPipelineSteps(unittest.TestCase):
     def setUp(self):
         self.mips = Mips()
@@ -52,9 +52,9 @@ class TestMipsPipelineSteps(unittest.TestCase):
         self.addi = Instruction('00100000000010100000000001100100 ; I2: addi R10,R0,100')
         
     def test_an_intermediary_step(self):
-        self.add.instruction_decode(self.mips.registers)
-        self.add.execute(self.mips.registers)
-        self.addi.instruction_decode(self.mips.registers)
+        self.add.instruction_decode(self.mips)
+        self.add.execute(self.mips)
+        self.addi.instruction_decode(self.mips)
 
         self.mips.pipeline[2].instruction = self.addi
         self.mips.pipeline[3].instruction = self.add
@@ -64,7 +64,7 @@ class TestMipsPipelineSteps(unittest.TestCase):
         self.assertEqual(self.mips.pipeline[3].instruction, self.add)
         self.assertTrue(self.mips.pipeline[3].done)
         
-        
+    
 class TestMips(unittest.TestCase):
     def setUp(self):
         text = """00000000001001110100100000100000 ; I1: add R9,R1,R7
@@ -115,8 +115,7 @@ class TestInstructionDependencies(unittest.TestCase):
     def setUp(self):
         text = '''00000000001001110100100000100000 ; I1: add R9,R1,R7
                   00000000011010010000100000100000 ; I2: add R1,R3,R9'''
-        self.mips = Mips(text)
-        self.mips.enable_bypassing(False)
+        self.mips = Mips(text, data_forwarding=False)
         
     def test_first_stall(self):
         mips = self.mips
@@ -163,14 +162,14 @@ class TestBranching(unittest.TestCase):
         self.assertEqual(self.mips.registers[1], 71)
 
 
-class TestBypassing(unittest.TestCase):
+class TestDataForwarding(unittest.TestCase):
     def setUp(self):
         text = """00100000000000010000000000000011 ; I1: addi R1,R0,3
                   00100000001000100000000000000010 ; I2: addi R2,R1,2"""
         self.mips = Mips(text)
         
-    def test_without_bypassing(self):
-        self.mips.enable_bypassing(False)
+    def test_without_data_forwarding(self):
+        self.mips.data_forwarding = False
         self.mips.execute_pipeline()
         self.mips.execute_pipeline()
         self.mips.execute_pipeline()
@@ -185,9 +184,8 @@ class TestBypassing(unittest.TestCase):
         self.mips.execute_pipeline()
         self.assertTrue(isinstance(self.mips.pipeline[2].instruction, AddiInstruction))
 
-
-    def test_with_bypassing(self):
-        self.mips.enable_bypassing(True)
+    def test_without_data_forwarding(self):
+        self.mips.data_forwarding = True
         self.mips.execute_pipeline()
         self.mips.execute_pipeline()
         self.mips.execute_pipeline()

@@ -3,10 +3,6 @@ from copy import copy
 
 from registers import RegisterInUseException
 
-import events
-
-BYPASSING = False
-
 ALU_SRC = "ALU_SRC"
 REG_DST = "REG_DST"
 MEM_TO_REG = "MEM_TO_REG"
@@ -15,7 +11,6 @@ MEM_WRITE = "MEM_WRITE"
 BRANCH = "BRANCH"
 JUMP = "JUMP"
 EXT_OP = "EXT_OP"
-
 
 class Instruction(object):
     """Factory"""
@@ -113,30 +108,30 @@ class BaseInstruction(object):
                       EXT_OP:kwargs.get(EXT_OP, 0)}
                       
         self.execution_time = kwargs.get("execution_time", 1)
-        self._registers = []
+        self._to_lock = kwargs.get("to_lock", [])
         
-    def instruction_decode(self, registers):
-        self.lock_registers(registers)
+    def instruction_decode(self, mips=None):
+        self.lock_registers(mips)
         return True
         
-    def execute(self, registers=None):
+    def execute(self, mips=None):
         self.execution_time -= 1
         return self.execution_time == 0
         
-    def memory_access(self, memory):
+    def memory_access(self, mips=None):
         return True
         
-    def write_back(self, registers):
-        self.unlock_registers(registers)
+    def write_back(self, mips=None):
+        self.unlock_registers(mips)
         return True
         
-    def lock_registers(self, registers):
-        for register in self._registers:
-            registers.lock(register)
+    def lock_registers(self, mips):
+        for register in self._to_lock:
+            mips.registers.lock(register)
 
-    def unlock_registers(self, registers):
-        for register in self._registers:
-            registers.unlock(register)
+    def unlock_registers(self, mips):
+        for register in self._to_lock:
+            mips.registers.unlock(register)
                 
     def current_state(self):
         state = {"text":self.text,
@@ -149,26 +144,26 @@ class AddInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=1, REG_WRITE=1, EXT_OP=None)
         
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
-            self._registers.append(self.rd)
-            BaseInstruction.instruction_decode(self, registers)
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
+            self._to_lock.append(self.rd)
+            BaseInstruction.instruction_decode(self, mips)
             return True
         except RegisterInUseException:
             return False
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value + self.rt_value
-        if BYPASSING:
+        if mips.data_forwarding:
             registers[self.rd] = self.rd_value
         return self.execution_time == 0
         
-    def write_back(self, registers):
-        BaseInstruction.write_back(self, registers)
-        registers[self.rd] = self.rd_value
+    def write_back(self, mips):
+        BaseInstruction.write_back(self, mips)
+        mips.registers[self.rd] = self.rd_value
         return True
 
 
@@ -177,25 +172,25 @@ class AddiInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=1, REG_WRITE=1, EXT_OP=1, ALU_SRC=1)
             
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self._registers.append(self.rt)
-            BaseInstruction.instruction_decode(self, registers)
+            self.rs_value = mips.registers[self.rs]
+            self._to_lock.append(self.rt)
+            BaseInstruction.instruction_decode(self, mips)
             return True
         except RegisterInUseException:
             return False
 
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         self.rt_value = self.rs_value + self.immediate
-        if BYPASSING:
-            registers[self.rt] = self.rt_value
+        if mips.data_forwarding:
+            mips.registers[self.rt] = self.rt_value
         return self.execution_time == 0
         
-    def write_back(self, registers):
-        BaseInstruction.write_back(self, registers)
-        registers[self.rt] = self.rt_value
+    def write_back(self, mips):
+        BaseInstruction.write_back(self, mips)
+        mips.registers[self.rt] = self.rt_value
         return True
         
         
@@ -204,20 +199,20 @@ class BeqInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
-            self.pc = registers["pc"]
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
+            self.pc = mips.registers["pc"]
             return True
         except RegisterInUseException:
             return False
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         if self.rs_value == self.rt_value:
             self.pc = self.pc + self.immediate
-            events.trigger('jump', self.pc)
+            mips.jump(self.pc)
         return self.execution_time == 0
         
         
@@ -226,20 +221,20 @@ class BleInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
-            self.pc = registers["pc"]
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
+            self.pc = mips.registers["pc"]
             return True
         except RegisterInUseException:
             return False
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         if self.rs_value <= self.rt_value:
             self.pc = self.immediate
-            events.trigger('jump', self.pc)
+            mips.jump(self.pc)
         return self.execution_time == 0
         
 
@@ -248,20 +243,20 @@ class BneInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
-            self.pc = registers["pc"]
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
+            self.pc = mips.registers["pc"]
             return True
         except RegisterInUseException:
             return False
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         if self.rs_value != self.rt_value:
             self.pc = self.pc + self.immediate
-            events.trigger('jump', self.pc)
+            mips.jump(self.pc)
         return self.execution_time == 0
                 
     
@@ -270,13 +265,13 @@ class JmpInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=None, ALU_SRC=None, MEM_TO_REG=None, JUMP=1, EXT_OP=None)
                  
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         self.pc = self.target_address
         return True
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
-        events.trigger('jump', self.pc)
+        mips.jump(self.pc)
         return True
         
     
@@ -285,27 +280,27 @@ class LwInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_DST=None, ALU_SRC=1, MEM_TO_REG=None, MEM_WRITE=1, EXT_OP=1)
                                            
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self._registers.append(self.rt)
-            BaseInstruction.instruction_decode(self, registers)
+            self.rs_value = mips.registers[self.rs]
+            self._to_lock.append(self.rt)
+            BaseInstruction.instruction_decode(self, mips)
             return True
         except RegisterInUseException:
             return False
                  
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         self.target_address = self.rs_value + self.immediate
         return self.execution_time == 0
         
-    def memory_access(self, memory):
-        self.rt_value = memory[self.target_address]
+    def memory_access(self, mips):
+        self.rt_value = mips.memory[self.target_address]
         return True
                 
-    def write_back(self, registers):
-        BaseInstruction.write_back(self, registers)
-        registers[self.rt] = self.rt_value
+    def write_back(self, mips):
+        BaseInstruction.write_back(self, mips)
+        mips.registers[self.rt] = self.rt_value
         return True
         
 
@@ -314,25 +309,26 @@ class MulInstruction(BaseInstruction):
         BaseInstruction.__init__(self, execution_time=2,
             REG_DST=1, REG_WRITE=1, EXT_OP=None)
                                   
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
-            registers.lock(self.rd)
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
+            self._to_lock.append(self.rd)
+            BaseInstruction.instruction_decode(self, mips)
             return True
         except RegisterInUseException:
             return False
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value * self.rt_value
-        if BYPASSING:
-            registers[self.rd] = self.rd_value
+        if mips.data_forwarding:
+            mips.registers[self.rd] = self.rd_value
         return self.execution_time == 0
         
-    def write_back(self, registers):
-        registers.unlock(self.rd)
-        registers[self.rd] = self.rd_value
+    def write_back(self, mips):
+        mips.registers.unlock(self.rd)
+        mips.registers[self.rd] = self.rd_value
         return True
         
 
@@ -347,26 +343,26 @@ class SubInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             REG_WRITE=1, EXT_OP=None)
         
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
-            self._registers.append(self.rd)
-            BaseInstruction.instruction_decode(self, registers)
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
+            self._to_lock.append(self.rd)
+            BaseInstruction.instruction_decode(self, mips)
             return True
         except RegisterInUseException:
             return False
         
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         self.rd_value = self.rs_value - self.rt_value
-        if BYPASSING:
-            registers[self.rd] = self.rd_value
+        if mips.data_forwarding:
+            mips.registers[self.rd] = self.rd_value
         return self.execution_time == 0
 
-    def write_back(self, registers):
-        BaseInstruction.write_back(self, registers)
-        registers[self.rd] = self.rd_value
+    def write_back(self, mips):
+        BaseInstruction.write_back(self, mips)
+        mips.registers[self.rd] = self.rd_value
         return True
         
 
@@ -375,21 +371,21 @@ class SwInstruction(BaseInstruction):
         BaseInstruction.__init__(self,
             ALU_SRC=1, MEM_TO_REG=1, REG_WRITE=1, EXT_OP=1)
                                            
-    def instruction_decode(self, registers):
+    def instruction_decode(self, mips):
         try:
-            self.rs_value = registers[self.rs]
-            self.rt_value = registers[self.rt]
+            self.rs_value = mips.registers[self.rs]
+            self.rt_value = mips.registers[self.rt]
             return True
         except RegisterInUseException:
             return False
 
-    def execute(self, registers):
+    def execute(self, mips):
         BaseInstruction.execute(self)
         self.memory_address = self.rs_value + self.immediate
         return self.execution_time == 0
         
-    def memory_access(self, memory):
-        memory[self.memory_address] = self.rt_value
+    def memory_access(self, mips):
+        mips.memory[self.memory_address] = self.rt_value
         return True
         
         

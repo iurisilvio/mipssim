@@ -1,8 +1,6 @@
 from copy import copy
 import logging
 
-import events
-
 class RegisterInUseException(BaseException):
     def __init__(self, value):
         self.value = value
@@ -18,8 +16,6 @@ class Registers(object):
         self._locks = set()
         self._tmp = {}
         
-        events.add_listener("jump", self._jump)
-
     def __getitem__(self, key):
         if key in self._locks:
             try:

@@ -9,133 +9,149 @@
     </head>
     <body>
         <div id="left_column">
-        <img id="image" src="/static/img/mips.png" alt="" title="MIPS" />
-        <table id="instructions" class="datatable">
-            <tr id="id">
-                <th>Instruction Fetch</th>
-                <th>Instruction Decode</th>
-                <th>Execute</th>
-                <th>Memory Access</th>
-                <th>Write Back</th>
-            </tr>
-            <tr id="text">
-                <td id="if">&nbsp;</td>
-                <td id="id_">&nbsp;</td>
-                <td id="ex">&nbsp;</td>
-                <td id="mem">&nbsp;</td>
-                <td id="wb">&nbsp;</td>
-            </tr>
-            <tr id="signals">
-                <td id="if_flags">&nbsp;</td>
-                <td id="id_flags">&nbsp;</td>
-                <td id="ex_flags">&nbsp;</td>
-                <td id="mem_flags">&nbsp;</td>
-                <td id="wb_flags">&nbsp;</td>
-            </tr>
-        </table>
-        <table id="memory" class="datatable">
-            <tr>
-                <th colspan="2">Memória recente usada</th>
-            </tr>
-            <tr>
-                <td>Endereço</td>
-                <td>Valor</td>
-            </tr>
-            <tr>
-                <td id="memory_addr_3">?</td>
-                <td id="memory_value_3">?</td>
-            </tr>
-            <tr>
-                <td id="memory_addr_2">?</td>
-                <td id="memory_value_2">?</td>
-            </tr>
-            <tr>
-                <td id="memory_addr_1">?</td>
-                <td id="memory_value_1">?</td>
-            </tr>
-            <tr>
-                <td id="memory_addr_0">?</td>
-                <td id="memory_value_0">?</td>
-            </tr>
-        </table>
-        <table id="info" class="datatable">
-            <tr>
-                <td>Clock</td>
-                <td id="clock">?</td>
-            </tr>
-            <tr>
-                <td>PC</td>
-                <td id="pc">?</td>
-            </tr>
-            <tr>
-                <td>Instruções concluídas</td>
-                <td id="instructions_completed">?</td>
-            </tr>
-            <tr>
-                <td>Produtividade</td>
-                <td id="throughput">?</td>
-            </tr>
-        </table>
-        <table id="registers" class="datatable">
-            <tr>
-                <th colspan="8">Registradores</th>
-            </tr>
-            <tr>
-                <td>R00</td><td id="r0">0</td>
-                <td>R08</td><td id="r8">0</td>
-                <td>R16</td><td id="r16">0</td>
-                <td>R24</td><td id="r24">0</td>
-            </tr>
-            <tr>
-                <td>R01</td><td id="r1">0</td>
-                <td>R09</td><td id="r9">0</td>
-                <td>R17</td><td id="r17">0</td>
-                <td>R25</td><td id="r25">0</td>
-            </tr>
-            <tr>
-                <td>R02</td><td id="r2">0</td>
-                <td>R10</td><td id="r10">0</td>
-                <td>R18</td><td id="r18">0</td>
-                <td>R26</td><td id="r26">0</td>
-            </tr>
-            <tr>
-                <td>R03</td><td id="r3">0</td>
-                <td>R11</td><td id="r11">0</td>
-                <td>R19</td><td id="r19">0</td>
-                <td>R27</td><td id="r27">0</td>
-            </tr>
-            <tr>
-                <td>R04</td><td id="r4">0</td>
-                <td>R12</td><td id="r12">0</td>
-                <td>R20</td><td id="r20">0</td>
-                <td>R28</td><td id="r28">0</td>
-            </tr>
-            <tr>
-                <td>R05</td><td id="r5">0</td>
-                <td>R13</td><td id="r13">0</td>
-                <td>R21</td><td id="r21">0</td>
-                <td>R29</td><td id="r29">0</td>
-            </tr>
-            <tr>
-                <td>R06</td><td id="r6">0</td>
-                <td>R14</td><td id="r14">0</td>
-                <td>R22</td><td id="r22">0</td>
-                <td>R30</td><td id="r30">0</td>
-            </tr>
-            <tr>
-                <td>R07</td><td id="r7">0</td>
-                <td>R15</td><td id="r15">0</td>
-                <td>R23</td><td id="r23">0</td>
-                <td>R31</td><td id="r31">0</td>
-            </tr>
-        </table>
-       </div>
-        <div id="controls">
-            <input type="file" id="files" onchange="handleFileSelect(this.files)" />
-            <button id="execute" onclick="mips.execute(filedata.value, 0);">Executar sem bypassing</button>
-            <button id="execute" onclick="mips.execute(filedata.value, 1);">Executar com bypassing</button>
-
-            <textarea id="filedata">
+            <table id="instructions" class="datatable">
+                <tr id="id">
+                    <th>Instruction Fetch</th>
+                    <th>Instruction Decode</th>
+                    <th>Execute</th>
+                    <th>Memory Access</th>
+                    <th>Write Back</th>
+                </tr>
+                <tr id="text">
+                    <td id="if">&nbsp;</td>
+                    <td id="id_">&nbsp;</td>
+                    <td id="ex">&nbsp;</td>
+                    <td id="mem">&nbsp;</td>
+                    <td id="wb">&nbsp;</td>
+                </tr>
+                <tr id="signals">
+                    <td id="if_flags">&nbsp;</td>
+                    <td id="id_flags">&nbsp;</td>
+                    <td id="ex_flags">&nbsp;</td>
+                    <td id="mem_flags">&nbsp;</td>
+                    <td id="wb_flags">&nbsp;</td>
+                </tr>
+            </table>
+            <img id="image" src="/static/img/mips.png" alt="" title="MIPS" />
+            <table id="memory" class="datatable">
+                <tr>
+                    <th colspan="2">Memória recente usada</th>
+                </tr>
+                <tr>
+                    <td>Endereço</td>
+                    <td>Valor</td>
+                </tr>
+                <tr>
+                    <td id="memory_addr_3">?</td>
+                    <td id="memory_value_3">?</td>
+                </tr>
+                <tr>
+                    <td id="memory_addr_2">?</td>
+                    <td id="memory_value_2">?</td>
+                </tr>
+                <tr>
+                    <td id="memory_addr_1">?</td>
+                    <td id="memory_value_1">?</td>
+                </tr>
+                <tr>
+                    <td id="memory_addr_0">?</td>
+                    <td id="memory_value_0">?</td>
+                </tr>
+            </table>
+            <table id="info" class="datatable">
+                <tr>
+                    <td>Clock</td>
+                    <td id="clock">?</td>
+                </tr>
+                <tr>
+                    <td>PC</td>
+                    <td id="pc">?</td>
+                </tr>
+                <tr>
+                    <td>Instruções concluídas</td>
+                    <td id="instructions_completed">?</td>
+                </tr>
+                <tr>
+                    <td>Produtividade</td>
+                    <td id="throughput">?</td>
+                </tr>
+            </table>
+            <table id="registers" class="datatable">
+                <tr>
+                    <th colspan="8">Registradores</th>
+                </tr>
+                <tr>
+                    <td>R00</td><td id="r0">0</td>
+                    <td>R08</td><td id="r8">0</td>
+                    <td>R16</td><td id="r16">0</td>
+                    <td>R24</td><td id="r24">0</td>
+                </tr>
+                <tr>
+                    <td>R01</td><td id="r1">0</td>
+                    <td>R09</td><td id="r9">0</td>
+                    <td>R17</td><td id="r17">0</td>
+                    <td>R25</td><td id="r25">0</td>
+                </tr>
+                <tr>
+                    <td>R02</td><td id="r2">0</td>
+                    <td>R10</td><td id="r10">0</td>
+                    <td>R18</td><td id="r18">0</td>
+                    <td>R26</td><td id="r26">0</td>
+                </tr>
+                <tr>
+                    <td>R03</td><td id="r3">0</td>
+                    <td>R11</td><td id="r11">0</td>
+                    <td>R19</td><td id="r19">0</td>
+                    <td>R27</td><td id="r27">0</td>
+                </tr>
+                <tr>
+                    <td>R04</td><td id="r4">0</td>
+                    <td>R12</td><td id="r12">0</td>
+                    <td>R20</td><td id="r20">0</td>
+                    <td>R28</td><td id="r28">0</td>
+                </tr>
+                <tr>
+                    <td>R05</td><td id="r5">0</td>
+                    <td>R13</td><td id="r13">0</td>
+                    <td>R21</td><td id="r21">0</td>
+                    <td>R29</td><td id="r29">0</td>
+                </tr>
+                <tr>
+                    <td>R06</td><td id="r6">0</td>
+                    <td>R14</td><td id="r14">0</td>
+                    <td>R22</td><td id="r22">0</td>
+                    <td>R30</td><td id="r30">0</td>
+                </tr>
+                <tr>
+                    <td>R07</td><td id="r7">0</td>
+                    <td>R15</td><td id="r15">0</td>
+                    <td>R23</td><td id="r23">0</td>
+                    <td>R31</td><td id="r31">0</td>
+                </tr>
+            </table>
+        </div>
+        <div id="right_column">
+            <div id="compiler">
+                <h4>Compiler</h4>
+                <textarea id="assembly">
+addi R10,R0,100
+sw R0,24(R0)
+sw R0,28(R0)
+LOOP:
+lw R6,28(R0)
+mul R7,R6,R6
+lw R1,24(R0)
+add R9,R1,R7
+sw R9,24(R0)
+addi R6,R6,1
+sw R6,28(R0)
+ble R6,R10,LOOP</textarea>
+                <button id="compile" onclick="mips.compile(assembly.value);">Compilar</button>
+            </div>
+            <div id="runner">
+                <h4>Runner</h4>
+                <input type="file" id="files" onchange="handleFileSelect(this.files)" />
+                <textarea id="bytecode">
 00100000000010100000000001100100 ; I1: addi R10,R0,100
 10101100000000000000000000011000 ; I2: sw R0,24(R0)
 10101100000000000000000000011100 ; I3: sw R0,28(R0)
@@ -147,10 +163,14 @@
 00100000110001100000000000000001 ; I9: addi R6,R6,1
 10101100000001100000000000011100 ; I10: sw R6,28(R0)
 00011100110010100000000000001100 ; I11: ble R6,R10,12</textarea>
-            <div id="controlbar">
-                <button id="prev" class="button" onclick="mips.prev();">&lt;&lt;</button>
-                <button id="play" class="button" onclick="mips.play();">|&gt;</button>
-                <button id="next" class="button" onclick="mips.next();">&gt;&gt;</button>
+                <input type="checkbox" id="data_forwarding" name="data_forwarding" /> Data Forwarding
+                <button id="execute" onclick="mips.execute(bytecode.value, $('#data_forwarding')[0].checked);">Executar</button>
+            </div>
+            <div id="controls">
+                <h4>Controls</h4>
+                <button id="prev" class="button" onclick="mips.prev();">prev</button>
+                <button id="play" class="button" onclick="mips.play();">play</button>
+                <button id="next" class="button" onclick="mips.next();">next</button>
             </div>
         </div>
     </body>

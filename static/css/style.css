@@ -5,6 +5,13 @@ body, table {
 
 #left_column {
     width: 700px;
+    position: relative;
+    float: left;
+}
+#right_column {
+    width: 500px;
+    position: relative;
+    float: left;
 }
 
 #instructions {
@@ -55,27 +62,19 @@ body, table {
 }
 
 #controls {
-    position: absolute;
     right: 10px;
     top: 10px;
     width: 500px;
-    height: 90%;
-}
-
-#controlbar {
-    width: 180px;
-    margin: 10px;
     position: relative;
-    display: block;
 }
 
-#controlbar .button {
+#controls .button {
     width: 40px;
     height: 20px;
     display: inline-block;
 }
 
-#filedata {
+#bytecode, #assembly {
     width: 90%;
     height: 200px;
     position: relative;

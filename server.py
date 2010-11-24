@@ -1,18 +1,24 @@
+#!/usr/bin/env python
 import traceback
 
 import bottle
 from bottle import route, request, static_file
 
 from mips import Mips
+from interpreter import Interpreter
+   
+@route("/mips", template="mips")
+def mips_ui():
+    return {}
 
 @route("/mips/execute", method="POST")
 def execution():
     text = request.POST.get("text")
-    bypassing = bool(int(request.POST.get("bypassing", 0)))
+    data_forwarding = bool(request.POST.get("data_forwarding", False))
 
     if text:
-        mips = Mips(text)
-        mips.enable_bypassing(bypassing)
+    
+        mips = Mips(text, data_forwarding=data_forwarding)
 
         try:
             mips.run()
@@ -25,10 +31,15 @@ def execution():
             return {"error":"TIMEOUT"}
         
     return {"error":"INVALID_TEXT"}
+
+@route("/mips/compile", method="POST")
+def compiler():
+    text = request.POST.get("text")
     
-@route("/mips", template="mips")
-def mips_ui():
-    return {}
+    interpreter = Interpreter(text)
+    interpreter.compile()
+    result = str(interpreter)
+    return {'result':result}
     
 @route("/static/:path#.+#")
 def static_server(path):

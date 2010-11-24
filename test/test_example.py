@@ -43,5 +43,4 @@ class TestExamples(unittest.TestCase):
         mips = Mips(text)
         mips.run()
         self.assertEqual(mips.registers[1], 5)
-        
     

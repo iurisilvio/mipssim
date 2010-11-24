@@ -5,10 +5,21 @@ var mips = {
     _current_position: null,
     _running: false,
 
-    execute: function(text, bypassing) {
+    compile: function(text, data_forwarding) {
+        $.ajax({
+            url:'/mips/compile',
+            data: {"text":text},
+            success: mips._compiled,
+            dataType: "json",
+            type: "POST"
+        });
+    },
+
+    execute: function(text, data_forwarding) {
+        bool = (data_forwarding) ? "True" : "False";
         $.ajax({
             url:'/mips/execute',
-            data: {"text":text, "bypassing":bypassing},
+            data: {"text":text, "data_forwarding":bool},
             success: mips._refresh,
             dataType: "json",
             type: "POST"
@@ -16,7 +27,9 @@ var mips = {
     },
 
     next: function() {
-        this.goto(++this._current_position);
+        if (this._current_position < this._data.length - 1) {
+            this.goto(++this._current_position);
+        }
     },
     
     prev: function() {
@@ -65,12 +78,16 @@ var mips = {
             this._running = false;
         }
     },
+
+    _compiled: function(data) {
+        bytecode.value = data.result;
+    },
     
     _refresh: function(data) {
         mips._data = data.result;
         mips.goto(0);
     },
-    
+
     _set_registers: function(registers) {
         for (var i in registers) {
             var register_field = $('#r' + i);
@@ -117,12 +134,10 @@ var mips = {
     }
 }
 
-
 function handleFileSelect(files) {
     var reader = new FileReader();
     reader.onload = function(e) {
-        var data = e.target.result;
-        $("#filedata").html(data);
+        bytecode.value = e.target.result;;
     };
     reader.readAsText(files[0]);
 }

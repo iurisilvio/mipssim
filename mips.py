@@ -5,16 +5,15 @@ from instructions import Instruction, NopInstruction
 from registers import Registers
 from memory import Memory
 
-import events
-
 REGISTERS_SIZE = 32
 MEMORY_SIZE = 100
 MIPS_MAX_AGE = 10000
     
 class Mips(object):
-    def __init__(self, instructions=None):
+    def __init__(self, instructions=None, data_forwarding=False):
         self.instructions = instructions.split("\n") if instructions else []
-
+        self.data_forwarding = data_forwarding
+        
         self.registers = Registers(size=REGISTERS_SIZE, pc=0)
         self.memory = Memory(size=MEMORY_SIZE)
         self.history = []
@@ -29,8 +28,6 @@ class Mips(object):
         self._wb = WriteBack(self)
         self.pipeline = (self._if, self._id, self._ex, self._mem, self._wb)
 
-        events.add_listener("jump", self._jump)        
-        
     def run(self, life=MIPS_MAX_AGE):
         while True:
             self.history.append(self.current_state())
@@ -58,11 +55,12 @@ class Mips(object):
             if not phase.instruction:
                 phase.instruction = NopInstruction()
 
-    def _jump(self, pc):
-        self._if.instruction.unlock_registers(self.registers)
+    def jump(self, pc):
+        self._if.instruction.unlock_registers(self)
         self._if.instruction = NopInstruction()
-        self._id.instruction.unlock_registers(self.registers)
+        self._id.instruction.unlock_registers(self)
         self._id.instruction = NopInstruction()
+        self.registers["pc"] = pc
     
     def current_state(self):
         instructions_completed = self.instructions_completed
@@ -77,9 +75,6 @@ class Mips(object):
                  "throughput":throughput}
         return state
         
-    def enable_bypassing(self, value):
-        instructions.BYPASSING = value
-
     
 class MipsPhase(object):
     def __init__(self, mips):
@@ -122,7 +117,7 @@ class InstructionDecode(MipsPhase):
 
     def execute(self):
         if self.instruction:
-            self.done = self.instruction.instruction_decode(self._mips.registers)
+            self.done = self.instruction.instruction_decode(self._mips)
         else:
             self.done = True
         
@@ -130,7 +125,7 @@ class InstructionDecode(MipsPhase):
 class Execute(MipsPhase):
     def execute(self):
         if self.instruction:
-            self.done = self.instruction.execute(self._mips.registers)
+            self.done = self.instruction.execute(self._mips)
         else:
             self.done = True
         
@@ -138,7 +133,7 @@ class Execute(MipsPhase):
 class MemoryAccess(MipsPhase):
     def execute(self):
         if self.instruction:
-            self.done = self.instruction.memory_access(self._mips.memory)
+            self.done = self.instruction.memory_access(self._mips)
         else:
             self.done = True
         
@@ -146,7 +141,7 @@ class MemoryAccess(MipsPhase):
 class WriteBack(MipsPhase):
     def execute(self):
         if self.instruction:
-            self.done = self.instruction.write_back(self._mips.registers)
+            self.done = self.instruction.write_back(self._mips)
             if self.done and not isinstance(self.instruction, NopInstruction):
                 self._mips.instructions_completed += 1
         else:
