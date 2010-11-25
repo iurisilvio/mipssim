@@ -198,12 +198,11 @@ class BeqInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
             REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
-                
+            
     def instruction_decode(self, mips):
         try:
             self.rs_value = mips.registers[self.rs]
             self.rt_value = mips.registers[self.rt]
-            self.pc = mips.pc
             return True
         except RegisterInUseException:
             return False
@@ -225,7 +224,6 @@ class BleInstruction(BaseInstruction):
         try:
             self.rs_value = mips.registers[self.rs]
             self.rt_value = mips.registers[self.rt]
-            self.pc = mips.pc
             return True
         except RegisterInUseException:
             return False
@@ -247,7 +245,6 @@ class BneInstruction(BaseInstruction):
         try:
             self.rs_value = mips.registers[self.rs]
             self.rt_value = mips.registers[self.rt]
-            self.pc = mips.pc
             return True
         except RegisterInUseException:
             return False
@@ -255,10 +252,10 @@ class BneInstruction(BaseInstruction):
     def execute(self, mips):
         BaseInstruction.execute(self)
         if self.rs_value != self.rt_value:
-            self.pc = self.pc + self.immediate
+            self.pc = self.pc + self.immediate + 4
             mips.jump(self.pc)
         return self.execution_time == 0
-                
+        
     
 class JmpInstruction(BaseInstruction):
     def __init__(self):
@@ -336,9 +333,14 @@ class MulInstruction(BaseInstruction):
 class NopInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self)
-        self.text = "nop"
-                                  
-
+        
+    
+class StallInstruction(NopInstruction):
+    def __init__(self):
+        NopInstruction.__init__(self)
+        self.text = "stall"
+        
+    
 class SubInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,

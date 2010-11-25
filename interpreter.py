@@ -109,7 +109,7 @@ class Interpreter(object):
 
                 if instruction in (BEQ, BNE):
                     label_position = self.labels[tokens.get("label")]
-                    immediate = label_position - pc - 4
+                    immediate = label_position - pc + 4
                 elif instruction == BLE:
                     label_position = self.labels[tokens.get("label")]
                     immediate = label_position
@@ -149,15 +149,25 @@ class Interpreter(object):
         Convert `number` to binary, appending zeros to left to return a string with length.
         If `number` is negative, two complement is used.
         """
-        if number >= 0:
+        n = int(number)
+        if n >= 0:
+            binary = bin(abs(n))[2:]
             zeros = "0" * length
-            binary = bin(int(number))[2:]
         else:
+            t = ['0' if c == '1' else '1' for c in bin(abs(n))[2:]]
+            
+            for i in reversed(xrange(len(t))):
+                if t[i] == '0':
+                    t[i] = '1'
+                    break
+                elif t[i] == '1':
+                    t[i] = '0'
+                    
+            t.insert(0, '1')
+            binary = "".join(t)
             zeros = "1" * length
-            # two complement
-            binary = bin(~int(number) + 1)[2:]
+            
         return ("%s%s" % (zeros, binary))[-length:]
-
         
     def parse(self):
         result = []
@@ -185,12 +195,6 @@ class Interpreter(object):
     def __str__(self):
         return "\n".join(self.instructions)
         
-        
-    def get_bytecode(self):
-        return "\n".join(self.bytecode_instructions)
-        
-    bytecode = property(get_bytecode)
-    
     
 if __name__ == "__main__":
     import sys

@@ -1,7 +1,7 @@
 from __future__ import division
 
 import instructions
-from instructions import Instruction, NopInstruction
+from instructions import Instruction, StallInstruction
 from registers import Registers
 from memory import Memory
 
@@ -19,7 +19,7 @@ class Mips(object):
         self.history = []
 
         self.pc = 0
-        self.clocks = 0
+        self.clock = 0
         self.instructions_completed = 0
         
         self._if = InstructionFetch(self)
@@ -33,9 +33,9 @@ class Mips(object):
         while True:
             self.history.append(self.current_state())
             self.execute_pipeline()
-            self.clocks += 1
+            self.clock += 1
             
-            if self.clocks > life or all(isinstance(p.instruction, NopInstruction) for p in self.pipeline):
+            if self.clock > life or (all(isinstance(p.instruction, StallInstruction) for p in self.pipeline) and self.pc == 4 * len(self.instructions)):
                 self.history.append(self.current_state())
                 break
 
@@ -54,23 +54,23 @@ class Mips(object):
         for phase in self.pipeline:
             phase.execute()
             if not phase.instruction:
-                phase.instruction = NopInstruction()
+                phase.instruction = StallInstruction()
 
     def jump(self, pc):
         self._if.instruction.unlock_registers(self)
-        self._if.instruction = NopInstruction()
+        self._if.instruction = StallInstruction()
         self._id.instruction.unlock_registers(self)
-        self._id.instruction = NopInstruction()
+        self._id.instruction = StallInstruction()
         self.pc = pc
     
     def current_state(self):
         instructions_completed = self.instructions_completed
-        throughput = instructions_completed / self.clocks if self.clocks > 0 else 0
+        throughput = instructions_completed / self.clock if self.clock > 0 else 0
     
         state = {"pipeline":[p.instruction.current_state() for p in self.pipeline],
                  "registers":self.registers.current_state(),
                  "memory":self.memory.history[-4:],
-                 "clock":self.clocks,
+                 "clock":self.clock,
                  "pc":self.pc,
                  "instructions_completed":instructions_completed,
                  "throughput":throughput}
@@ -80,7 +80,7 @@ class Mips(object):
 class MipsPhase(object):
     def __init__(self, mips):
         self._mips = mips
-        self._instruction = NopInstruction()
+        self._instruction = StallInstruction()
         self.done = True
         
     def execute(self):
@@ -88,7 +88,7 @@ class MipsPhase(object):
 
     def set_instruction(self, value):
         self._instruction = value
-        self.done = isinstance(value, NopInstruction) or value is None
+        self.done = isinstance(value, StallInstruction) or value is None
         
     def get_instruction(self):
         return self._instruction
@@ -102,6 +102,7 @@ class InstructionFetch(MipsPhase):
             
             try:
                 instruction = Instruction(self._mips.instructions[instruction_number])
+                instruction.pc = self._mips.pc
                 self._mips.pc += 4
             except IndexError:
                 instruction = None
@@ -143,7 +144,7 @@ class WriteBack(MipsPhase):
     def execute(self):
         if self.instruction:
             self.done = self.instruction.write_back(self._mips)
-            if self.done and not isinstance(self.instruction, NopInstruction):
+            if self.done and not isinstance(self.instruction, StallInstruction):
                 self._mips.instructions_completed += 1
         else:
             self.done = True

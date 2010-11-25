@@ -37,20 +37,30 @@ var mips = {
     },
 
     next: function() {
-        if (this._current_position < this._data.length - 1) {
-            this.goto(++this._current_position);
+        if (this._running) {
+            TICKS /= 2;
         }
         else {
-            this._running = false;
+            if (this._current_position < this._data.length - 1) {
+                this.goto(++this._current_position);
+            }
+            else {
+                this._running = false;
+            }
         }
     },
     
     prev: function() {
-        if (this._current_position > 0) {
-            this.goto(--this._current_position);
+        if (this._running) {
+            TICKS *= 2;
         }
         else {
-            this._running = false;
+            if (this._current_position > 0) {
+                this.goto(--this._current_position);
+            }
+            else {
+                this._running = false;
+            }
         }
     },
     
@@ -70,7 +80,12 @@ var mips = {
     
     _run: function() {
         if (mips._running) {
-            mips.next();
+            if (mips._current_position < mips._data.length - 1) {
+                mips.goto(++mips._current_position);
+            }
+            else {
+                mips._running = false;
+            }
             setTimeout(mips._run, TICKS);
         }
     },

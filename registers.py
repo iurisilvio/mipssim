@@ -10,7 +10,7 @@ class RegisterInUseException(BaseException):
         
     
 class Registers(object):
-    def __init__(self, size=32, **kwargs):
+    def __init__(self, size=32):
         self._array = [0] * size
         self._locks = set()
         self._tmp = {}

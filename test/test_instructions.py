@@ -227,10 +227,11 @@ class TestBeqInstruction(BaseTestInstruction, unittest.TestCase):
         self.text = "00010100001000110000000000001010 ; I20: beq R1,R2,10"
         self.instruction = Instruction(self.text)
 
-        registers = Registers(pc=0)
+        registers = Registers()
         registers[1] = 4
         registers[3] = 4
         self._mips = MipsStub(registers, memory=[])
+        self.instruction.pc = self._mips.pc
         
     def test_instruction_decode(self):
         BaseTestInstruction.instruction_decode(self)
@@ -262,10 +263,11 @@ class TestBleInstruction(BaseTestInstruction, unittest.TestCase):
         self.text = "00011100110010100000000000010100 ; I11: ble R6,R10,20"
         self.instruction = Instruction(self.text)
 
-        registers = Registers(pc=0)
+        registers = Registers()
         registers[6] = 3
         registers[10] = 8
         self._mips = MipsStub(registers, memory=[])
+        self.instruction.pc = self._mips.pc
         
     def test_instruction_decode(self):
         BaseTestInstruction.instruction_decode(self)
@@ -295,31 +297,33 @@ class TestBleInstruction(BaseTestInstruction, unittest.TestCase):
     
 class TestBneInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
-        self.text = "00010000001000100000000000001010 ; I15: ble R1,R2,10"
+        self.text = """00010000001000101111111111111000 ; I2: bne R1,R2,-8"""
         self.instruction = Instruction(self.text)
 
-        registers = Registers(pc=0)
+        registers = Registers()
         registers[1] = 3
         registers[2] = 8
         self._mips = MipsStub(registers, memory=[])
+        self._mips.pc = 4
+        self.instruction.pc = self._mips.pc
         
     def test_instruction_decode(self):
         BaseTestInstruction.instruction_decode(self)
         self.assertEqual(self.instruction.rs_value, 3)
         self.assertEqual(self.instruction.rt_value, 8)
-        self.assertEqual(self.instruction.immediate, 10)
-        self.assertEqual(self.instruction.pc, 0)
+        self.assertEqual(self.instruction.immediate, -8)
+        self.assertEqual(self.instruction.pc, 4)
         
     def test_execute_with_jump(self):
         self.assertTrue(BaseTestInstruction.execute(self))
-        self.assertEqual(self.instruction.pc, 10)
-        self.assertEqual(self._mips.pc, 10)
+        self.assertEqual(self.instruction.pc, 0)
+        self.assertEqual(self._mips.pc, 0)
         
     def test_execute_without_jump(self):
         self._mips.registers[2] = 3
         self.assertTrue(BaseTestInstruction.execute(self))
-        self.assertEqual(self.instruction.pc, 0)
-        self.assertEqual(self._mips.pc, 0)
+        self.assertEqual(self.instruction.pc, 4)
+        self.assertEqual(self._mips.pc, 4)
 
     def test_memory_access(self):
         BaseTestInstruction.memory_access(self)
@@ -357,7 +361,7 @@ class TestLwInstruction(BaseTestInstruction, unittest.TestCase):
         self.text = "10001100000000010000000000011000 ; I15: lw R1,24(R0)"
         self.instruction = Instruction(self.text)
         
-        registers = Registers(pc=4)
+        registers = Registers()
         registers[0] = 12
         registers[1] = 4
         memory = [0] * 64
@@ -464,6 +468,27 @@ class TestNopInstruction(BaseTestInstruction, unittest.TestCase):
         BaseTestInstruction.write_back(self)
         
         
+class TestStallInstruction(BaseTestInstruction, unittest.TestCase):
+    def setUp(self):
+        from instructions import StallInstruction
+        self.instruction = StallInstruction()
+        
+        registers = Registers()
+        self._mips = MipsStub(registers, memory=[])
+    
+    def test_instruction_decode(self):
+        BaseTestInstruction.instruction_decode(self)
+        
+    def test_execute(self):
+        self.assertTrue(BaseTestInstruction.execute(self))
+        
+    def test_memory_access(self):
+        BaseTestInstruction.memory_access(self)
+                
+    def test_write_back(self):
+        BaseTestInstruction.write_back(self)
+        
+    
 class TestSubInstruction(BaseTestInstruction, unittest.TestCase):
     def setUp(self):
         self.text = "00000000001001110100100000100010 ; I7: add R9,R1,R7"
@@ -511,7 +536,7 @@ class TestSwInstruction(BaseTestInstruction, unittest.TestCase):
         self.text = "10101100000010010000000000011000 ; I15: sw R9,24(R0)"
         self.instruction = Instruction(self.text)
         
-        registers = Registers(pc=4)
+        registers = Registers()
         registers[0] = 12
         registers[9] = 4
         memory = [0] * 64

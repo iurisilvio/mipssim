@@ -1,0 +1,4 @@
+L:
+addi R1,R0,3
+addi R2,R1,2
+beq R1,R2,L

@@ -26,7 +26,7 @@ class TestCompile(unittest.TestCase):
         interpreter = Interpreter(code)
         interpreter.compile()
         self.assertEqual(len(interpreter.instructions), 3)
-        self.assertEqual(interpreter.instructions[2], "00010100001000101111111111111100 ; I3: beq R1,R2,-12")
+        self.assertEqual(interpreter.instructions[2], "00010100001000101111111111111100 ; I3: beq R1,R2,-4")
         
     def test_ble(self):
         code = """nop
@@ -45,7 +45,7 @@ class TestCompile(unittest.TestCase):
         interpreter = Interpreter(code)
         interpreter.compile()
         self.assertEqual(len(interpreter.instructions), 2)
-        self.assertEqual(interpreter.instructions[1], "00010000001000101111111111111000 ; I2: bne R1,R2,-8")
+        self.assertEqual(interpreter.instructions[1], "00010000001000100000000000000000 ; I2: bne R1,R2,0")
         
     def test_jmp_back(self):
         code = """label:
@@ -119,6 +119,10 @@ class TestCompile(unittest.TestCase):
         interpreter.compile()
         self.assertEqual(interpreter.instructions[0], "00000000001001110100100000100000 ; I1: add R9,R1,R7")
 
+    def test_uppercase_instruction(self):
+        code = "BLEH R9,R1,R7"
+        interpreter = Interpreter(code)
+        self.assertRaises(Exception, interpreter.compile)
 
 
 class TestInterpreter(unittest.TestCase):
@@ -167,7 +171,7 @@ class TestInterpreter(unittest.TestCase):
 
         text = ["00100000000000010000000000000011 ; I1: addi R1,R0,3",
                 "00100000000000100000000000000010 ; I2: addi R2,R0,2",
-                "00010100001000100000000000000000 ; I3: beq R1,R2,0",
+                "00010100001000100000000000001000 ; I3: beq R1,R2,8",
                 "00001000000000000000000000011000 ; I4: jmp 24",
                 "00100000000000010000000000000101 ; I5: addi R1,R0,5",
                 "00001000000000000000000000011100 ; I6: jmp 28",
@@ -180,6 +184,17 @@ class TestInterpreter(unittest.TestCase):
             self.assertEqual(compiled, correct)
         
     
-if __name__ == "__main__":
-    unittest.main()
+class TestBinaryOperations(unittest.TestCase):
+    def setUp(self):
+        self.interpreter = Interpreter()
+
+    def test_to_bin(self):
+        self.assertEqual(self.interpreter._to_bin(0), '0')
+        self.assertEqual(self.interpreter._to_bin(2), '10')
+        self.assertEqual(self.interpreter._to_bin(-2, 5), '11110')
+        self.assertEqual(self.interpreter._to_bin(-4, 5), '11100')
+        self.assertEqual(self.interpreter._to_bin(-7, 5), '11001')
+        self.assertEqual(self.interpreter._to_bin(-8, 5), '11000')
+        self.assertEqual(self.interpreter._to_bin(12, 5), '01100')        
     
+

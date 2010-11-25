@@ -57,15 +57,14 @@ body, table {
 #image {
     position: relative;
     display: block;
-    border: 1px solid #DDD;
-    width: 550px;
+    width: 690px;
+    margin: 5px;
 }
 
 #controls {
-    right: 10px;
-    top: 10px;
     width: 500px;
     position: relative;
+    display:block;
 }
 
 #controls .button {

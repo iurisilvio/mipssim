@@ -3,7 +3,7 @@ import unittest
 from mips import Mips
 import instructions
 from instructions import (Instruction, AddInstruction, AddiInstruction,
-                          MulInstruction, NopInstruction)
+                          BeqInstruction, MulInstruction, NopInstruction)
 
 class TestOneInstructionOnMips(unittest.TestCase):
     def _exec_pipeline(self, times):
@@ -88,8 +88,8 @@ class TestMips(unittest.TestCase):
         self.assertTrue(isinstance(self.mips.pipeline[1].instruction, AddiInstruction))
         self.assertTrue(isinstance(self.mips.pipeline[2].instruction, MulInstruction))
         self.assertTrue(isinstance(self.mips.pipeline[4].instruction, AddInstruction))
-
-
+        
+    
 class TestGoForwardPipeline(unittest.TestCase):
     def setUp(self):
         self.mips = Mips()
@@ -147,19 +147,37 @@ class TestBranching(unittest.TestCase):
                   00100000001000010000000000001010 ; I2: addi R1,R1,10
                   00011100001000100000000000000100 ; I3: ble R1,R2,4
                   00100000001000010000000001000000 ; I4: addi R1,R1,64'''
-        self.mips = Mips(text)
-        self.mips.run()
-        self.assertEqual(self.mips.registers[1], 74)
+        mips = Mips(text)
+        mips.run()
+        self.assertEqual(mips.registers[1], 74)
 
     def test_with_branch(self):
         text = '''00100000010000100000000000100011 ; I1: addi R2,R2,35
                   00100000001000010000000000001101 ; I2: addi R1,R1,13
                   00011100001000100000000000000100 ; I3: ble R1,R2,4
                   00100000001000010000000000100000 ; I4: addi R1,R1,32'''
-        self.mips = Mips(text)
-        self.mips.run()
+        mips = Mips(text)
+        mips.run()
 
-        self.assertEqual(self.mips.registers[1], 71)
+        self.assertEqual(mips.registers[1], 71)
+        
+    def test_beq_jump(self):
+        """
+        LABEL:
+        addi R1,R0,2
+        add R2,R1,R3
+        beq R1,R2,LABEL
+        """
+        text = """00100000000000010000000000000010 ; I1: addi R1,R0,2
+                  00000000001000110001000000100000 ; I2: add R2,R1,R3
+                  00010100001000101111111111111000 ; I3: beq R1,R2,-8"""
+        mips = Mips(text)
+        for i in range(11):
+            mips.execute_pipeline()
+        self.assertTrue(isinstance(mips.pipeline[2].instruction, BeqInstruction))
+        mips.execute_pipeline()
+        print [i.instruction for i in mips.pipeline]
+        self.assertTrue(isinstance(mips.pipeline[0].instruction, AddiInstruction))
 
 
 class TestDataForwarding(unittest.TestCase):
@@ -201,3 +219,12 @@ class TestDataForwarding(unittest.TestCase):
         self.assertTrue(isinstance(self.mips.pipeline[3].instruction, AddiInstruction))
         
     
+class TestEmptyPipelineUntilRunning(unittest.TestCase):
+    def setUp(self):
+        text = """00000000000000000000000000000000 ; I1: nop
+                  00000000000000000000000000000000 ; I2: nop"""
+        self.mips = Mips(text)
+        
+    def test_run(self):
+        self.mips.run()
+        self.assertEqual(self.mips.clock, 7)
