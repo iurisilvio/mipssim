@@ -104,6 +104,7 @@ var mips = {
             this._set_registers(state.registers);
             this._set_pipeline(state.pipeline);
             this._set_memory(state.memory);
+            this._set_progress(state.clock, this._data.length);
         }
         else {
             this._running = false;
@@ -144,23 +145,46 @@ var mips = {
     },
     
     _set_pipeline: function(pipeline) {
-        var flags_string = function(flags) {
-            var s = ""
-            for (var key in flags) {
-                s += key.toLowerCase() + ": " + flags[key] + "<br />"
+        var flags_string = function(flags, keys) {
+            var s = "";
+            if (keys) {
+                for (var i in keys) {
+                    s += keys[i].toLowerCase() + ": " + flags[keys[i]] + "<br />";
+                }
+            }
+            else {
+                for (var key in flags) {
+                    s += key.toLowerCase() + ": " + flags[key] + "<br />";
+                }
             }
             return s;
         };
+        
+        /*      
+        ALU_SRC [2]
+        BRANCH [3]
+        EXT_OP [2]
+        JUMP [3]
+        MEM_TO_REG [3, 4]
+        MEM_WRITE [3]
+        REG_DST [2]
+        REG_WRITE [2]
+        */
         $("#if").html(pipeline[0].text);
-        $("#if_flags").html(flags_string(pipeline[0].flags));
+        $("#if_flags").html(flags_string(pipeline[0].flags,
+            []));
         $("#id_").html(pipeline[1].text);
-        $("#id_flags").html(flags_string(pipeline[1].flags));
+        $("#id_flags").html(flags_string(pipeline[1].flags,
+            ["REG_WRITE"]));
         $("#ex").html(pipeline[2].text);
-        $("#ex_flags").html(flags_string(pipeline[2].flags));
+        $("#ex_flags").html(flags_string(pipeline[2].flags,
+            ["ALU_SRC", "BRANCH", "EXT_OP", "JUMP", "REG_DST"]));
         $("#mem").html(pipeline[3].text);
-        $("#mem_flags").html(flags_string(pipeline[3].flags));
+        $("#mem_flags").html(flags_string(pipeline[3].flags,
+            ["MEM_TO_REG", "MEM_WRITE"]));
         $("#wb").html(pipeline[4].text);
-        $("#wb_flags").html(flags_string(pipeline[4].flags));
+        $("#wb_flags").html(flags_string(pipeline[4].flags,
+            ["MEM_TO_REG"]));
     },
 
     _set_memory: function(memory) {
@@ -170,7 +194,13 @@ var mips = {
                 $("#memory_value_" + i).html(memory[i][2]);
             }
         }
-    }
+    },
+    
+    _set_progress: function(clock, total) {
+        $("#range")[0].value = clock;
+        $("#range")[0].max = total - 1
+        $("#range_text").html(clock + " / " + (total - 1));
+    },
 }
 
 function handleFileSelect(files) {

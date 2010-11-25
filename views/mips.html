@@ -173,6 +173,8 @@ ble R6,R10,LOOP</textarea>
                 <button id="prev" class="button" onclick="mips.prev();">prev</button>
                 <button id="play" class="button" onclick="mips.play();">play</button>
                 <button id="next" class="button" onclick="mips.next();">next</button>
+                <input id="range" type="range" min="0" value="0" max="0" onchange="mips.goto(this.value)" />
+                <span id="range_text">0 / 0</span>
             </div>
         </div>
     </body>

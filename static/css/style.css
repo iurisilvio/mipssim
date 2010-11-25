@@ -26,7 +26,9 @@ body, table {
 #info tr td,
 #registers tr th,
 #registers tr td {
+    top: 0;
     border: 1px solid #000;
+    vertical-align: top;
 }
 
 #instructions #id th {
@@ -83,6 +85,14 @@ body, table {
 #file {
     display: block;
     position: relative;
+}
+
+#range {
+    display: block;
+}
+
+#range_text {
+    display: inline;
 }
 
 .datatable {
