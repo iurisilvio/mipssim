@@ -7,11 +7,11 @@ from bottle import route, request, static_file
 from mips import Mips
 from interpreter import Interpreter
    
-@route("/mips", template="mips")
+@route("/", template="mips")
 def mips_ui():
     return {}
 
-@route("/mips/execute", method="POST")
+@route("/execute", method="POST")
 def execution():
     text = request.POST.get("text")
     data_forwarding = bool(int(request.POST.get("data_forwarding", 0)))
@@ -23,7 +23,7 @@ def execution():
         
     return {"error":"INVALID_TEXT"}
 
-@route("/mips/compare", method="POST")
+@route("/compare", method="POST")
 def execution():
     text = request.POST.get("text")
 
@@ -44,7 +44,7 @@ def execution():
 
     return {"error":"INVALID_TEXT"}
 
-@route("/mips/compile", method="POST")
+@route("/compile", method="POST")
 def compiler():
     text = request.POST.get("text")
     
