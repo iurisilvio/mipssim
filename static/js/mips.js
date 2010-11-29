@@ -104,7 +104,7 @@ var mips = {
             this._set_registers(state.registers);
             this._set_pipeline(state.pipeline);
             this._set_memory(state.memory);
-            this._set_progress(state.clock, this._data.length);
+            this._set_progress(state.clock, this._data.length - 1);
         }
         else {
             this._running = false;
@@ -198,8 +198,8 @@ var mips = {
     
     _set_progress: function(clock, total) {
         $("#range")[0].value = clock;
-        $("#range")[0].max = total - 1
-        $("#range_text").html(clock + " / " + (total - 1));
+        $("#range")[0].max = total;
+        $("#range_text").html(clock + " / " + total);
     },
 }
 
