@@ -1,5 +1,7 @@
 TICKS = 100;
 
+URL_BASE = '/mips'
+
 var mips = {
     _data: [],
     _current_position: null,
@@ -7,7 +9,7 @@ var mips = {
 
     compare: function(text, data_forwarding) {
         $.ajax({
-            url:'/mips/compare',
+            url:URL_BASE + '/compare',
             data: {"text":text},
             success: mips._compare_callback,
             dataType: "json",
@@ -17,7 +19,7 @@ var mips = {
 
     compile: function(text, data_forwarding) {
         $.ajax({
-            url:'/mips/compile',
+            url:URL_BASE + '/compile',
             data: {"text":text},
             success: mips._compile_callback,
             dataType: "json",
@@ -28,7 +30,7 @@ var mips = {
     execute: function(text, data_forwarding) {
         var bool = (data_forwarding) ? 1 : 0;
         $.ajax({
-            url:'/mips/execute',
+            url:URL_BASE + '/execute',
             data: {"text":text, "data_forwarding":bool},
             success: mips._execute_callback,
             dataType: "json",
@@ -159,17 +161,7 @@ var mips = {
             }
             return s;
         };
-        
-        /*      
-        ALU_SRC [2]
-        BRANCH [3]
-        EXT_OP [2]
-        JUMP [3]
-        MEM_TO_REG [3, 4]
-        MEM_WRITE [3]
-        REG_DST [2]
-        REG_WRITE [2]
-        */
+
         $("#if").html(pipeline[0].text);
         $("#if_flags").html(flags_string(pipeline[0].flags,
             []));
