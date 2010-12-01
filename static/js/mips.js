@@ -149,34 +149,22 @@ var mips = {
     _set_pipeline: function(pipeline) {
         var flags_string = function(flags, keys) {
             var s = "";
-            if (keys) {
-                for (var i in keys) {
-                    s += keys[i].toLowerCase() + ": " + flags[keys[i]] + "<br />";
-                }
-            }
-            else {
-                for (var key in flags) {
-                    s += key.toLowerCase() + ": " + flags[key] + "<br />";
-                }
+            for (var key in flags) {
+                s += key.toLowerCase() + ": " + flags[key] + "<br />";
             }
             return s;
         };
 
         $("#if").html(pipeline[0].text);
-        $("#if_flags").html(flags_string(pipeline[0].flags,
-            []));
+        $("#if_flags").html(flags_string(pipeline[0].flags));
         $("#id_").html(pipeline[1].text);
-        $("#id_flags").html(flags_string(pipeline[1].flags,
-            ["REG_WRITE"]));
+        $("#id_flags").html(flags_string(pipeline[1].flags));
         $("#ex").html(pipeline[2].text);
-        $("#ex_flags").html(flags_string(pipeline[2].flags,
-            ["ALU_SRC", "BRANCH", "EXT_OP", "JUMP", "REG_DST"]));
+        $("#ex_flags").html(flags_string(pipeline[2].flags));
         $("#mem").html(pipeline[3].text);
-        $("#mem_flags").html(flags_string(pipeline[3].flags,
-            ["MEM_TO_REG", "MEM_WRITE"]));
+        $("#mem_flags").html(flags_string(pipeline[3].flags));
         $("#wb").html(pipeline[4].text);
-        $("#wb_flags").html(flags_string(pipeline[4].flags,
-            ["MEM_TO_REG"]));
+        $("#wb_flags").html(flags_string(pipeline[4].flags));
     },
 
     _set_memory: function(memory) {
