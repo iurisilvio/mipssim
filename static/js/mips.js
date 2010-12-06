@@ -114,7 +114,11 @@ var mips = {
     },
     
     _compare_callback: function(data) {
-        result = "Produtividade\n";
+        result = "Clocks:\n"
+        result += data.slower_mips.clocks;
+        result += " x ";
+        result += data.faster_mips.clocks;
+        result += "\nProdutividade:\n";
         result += data.slower_mips.throughput.toFixed(2);
         result += " x ";
         result += data.faster_mips.throughput.toFixed(2);

@@ -1,4 +1,4 @@
-Para utilizar o simulador MIPS, é necessário o Python instalado.
+Para utilizar o simulador MIPS, é necessário o Python 2.x instalado.
 
 Basta rodar o arquivo server.py e acessar a url http://localhost:8080/mips :
 
