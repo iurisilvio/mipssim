@@ -170,7 +170,7 @@ class AddInstruction(BaseInstruction):
 class AddiInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
-            REG_DST=1, REG_WRITE=1, EXT_OP=1, ALU_SRC=1)
+            REG_DST=1, REG_WRITE=1, EXT_OP=0, ALU_SRC=1)
             
     def instruction_decode(self, mips):
         try:
@@ -218,7 +218,7 @@ class BeqInstruction(BaseInstruction):
 class BleInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
-            REG_DST=None, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
+            REG_DST=None, ALU_SRC=1, MEM_TO_REG=None, BRANCH=1, EXT_OP=None)
                 
     def instruction_decode(self, mips):
         try:
@@ -275,7 +275,7 @@ class JmpInstruction(BaseInstruction):
 class LwInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
-            REG_DST=None, ALU_SRC=1, MEM_TO_REG=None, MEM_WRITE=1, EXT_OP=1)
+            ALU_SRC=1, MEM_TO_REG=1, REG_WRITE=1, EXT_OP=1)
                                            
     def instruction_decode(self, mips):
         try:
@@ -372,7 +372,7 @@ class SubInstruction(BaseInstruction):
 class SwInstruction(BaseInstruction):
     def __init__(self):
         BaseInstruction.__init__(self,
-            ALU_SRC=1, MEM_TO_REG=1, REG_WRITE=1, EXT_OP=1)
+            REG_DST=None, ALU_SRC=1, MEM_TO_REG=None, MEM_WRITE=1, EXT_OP=1)
                                            
     def instruction_decode(self, mips):
         try:
