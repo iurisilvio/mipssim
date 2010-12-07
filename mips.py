@@ -11,7 +11,8 @@ MIPS_MAX_AGE = 10000
     
 class Mips(object):
     def __init__(self, instructions=None, data_forwarding=False):
-        self.instructions = instructions.split("\n") if instructions else []
+        instructions = instructions.split("\n") if instructions else []
+        self.instructions = [instruction for instruction in instructions if instruction.strip()]
         self.data_forwarding = data_forwarding
         
         self.registers = Registers(size=REGISTERS_SIZE)
