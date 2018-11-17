@@ -9,6 +9,7 @@ heroku = "*"
 
 [packages]
 pip = "==18.0"
+gunicorn = "*"
 
 [requires]
 python_version = "2.7"
