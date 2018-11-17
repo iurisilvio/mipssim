@@ -5,7 +5,6 @@ name = "pypi"
 
 [dev-packages]
 nose = "*"
-heroku = "*"
 
 [packages]
 pip = "==18.0"
