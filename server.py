@@ -59,7 +59,6 @@ def static_server(path):
     
 def main(debug=False, reloader=False, host="0.0.0.0"):
     bottle.debug(debug)
-    bottle.mount(bottle.app(), "/mips")
     bottle.run(reloader=reloader, host=host)
 
 if __name__ == "__main__":

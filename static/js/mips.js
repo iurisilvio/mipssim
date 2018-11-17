@@ -1,7 +1,5 @@
 TICKS = 100;
 
-URL_BASE = '/mips'
-
 var mips = {
     _data: [],
     _current_position: null,
@@ -9,7 +7,7 @@ var mips = {
 
     compare: function(text, data_forwarding) {
         $.ajax({
-            url:URL_BASE + '/compare',
+            url: '/compare',
             data: {"text":text},
             success: mips._compare_callback,
             dataType: "json",
@@ -19,7 +17,7 @@ var mips = {
 
     compile: function(text, data_forwarding) {
         $.ajax({
-            url:URL_BASE + '/compile',
+            url: '/compile',
             data: {"text":text},
             success: mips._compile_callback,
             dataType: "json",
@@ -30,7 +28,7 @@ var mips = {
     execute: function(text, data_forwarding) {
         var bool = (data_forwarding) ? 1 : 0;
         $.ajax({
-            url:URL_BASE + '/execute',
+            url: '/execute',
             data: {"text":text, "data_forwarding":bool},
             success: mips._execute_callback,
             dataType: "json",
